@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Try Python ML service first
-    const pythonServiceUrl = process.env.PYTHON_ML_SERVICE_URL;
+    const pythonServiceUrl = process.env.ML_SERVICE_URL;
     let predictions;
     let usePythonBackend = false;
 
