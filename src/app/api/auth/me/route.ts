@@ -1,36 +1,23 @@
 import { NextResponse } from 'next/server';
-import { getAuthUser } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const authUser = await getAuthUser();
+    const user = await getCurrentUser(request as any);
     
-    if (!authUser) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const [user] = await db.select().from(users).where(eq(users.id, authUser.userId)).limit(1);
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      id: user.id,
-      email: user.email,
-      fullName: user.fullName,
-    });
+    return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
-    console.error('Auth me error:', error);
+    console.error('Get current user error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
