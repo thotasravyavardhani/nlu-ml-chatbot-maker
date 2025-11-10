@@ -65,7 +65,7 @@ async function validateAnnotationOwnership(annotationId: number, userId: string)
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = await authenticateRequest(request);
@@ -77,7 +77,8 @@ export async function PUT(
       );
     }
 
-    const annotationId = parseInt(params.id);
+    const { id } = await params;
+    const annotationId = parseInt(id);
     
     if (isNaN(annotationId)) {
       return NextResponse.json(
@@ -165,7 +166,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = await authenticateRequest(request);
@@ -177,7 +178,8 @@ export async function DELETE(
       );
     }
 
-    const annotationId = parseInt(params.id);
+    const { id } = await params;
+    const annotationId = parseInt(id);
     
     if (isNaN(annotationId)) {
       return NextResponse.json(

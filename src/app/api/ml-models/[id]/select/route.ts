@@ -5,7 +5,7 @@ import { eq, and } from 'drizzle-orm';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Extract and validate authentication token
@@ -46,7 +46,7 @@ export async function PUT(
     const userId = userSession.userId;
 
     // Validate model ID parameter
-    const modelId = params.id;
+    const { id: modelId } = await params;
     if (!modelId || isNaN(parseInt(modelId))) {
       return NextResponse.json(
         { error: 'Valid model ID is required', code: 'INVALID_ID' },
