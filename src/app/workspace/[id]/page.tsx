@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { Brain, Database, Zap, BarChart3, MessageSquare, Settings as SettingsIcon, FileText, Download, RefreshCw, ArrowLeft, Menu, X, Loader2, Target } from "lucide-react";
+import { Brain, Database, Zap, BarChart3, MessageSquare, Settings as SettingsIcon, FileText, ArrowLeft, Menu, X, Loader2, Target } from "lucide-react";
 import DatasetManager from "@/components/workspace/DatasetManager";
 import ModelTraining from "@/components/workspace/ModelTraining";
 import ModelEvaluation from "@/components/workspace/ModelEvaluation";
@@ -93,10 +93,10 @@ export default function WorkspacePage() {
 
   if (isPending || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50/30 to-pink-50/20">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading workspace...</p>
+          <p className="text-muted-foreground font-medium">Loading workspace...</p>
         </div>
       </div>
     );
@@ -107,31 +107,23 @@ export default function WorkspacePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
-      {/* Animated Background with Parallax */}
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Parallax Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {/* Primary Background Layer */}
-        <div 
-          className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950/20 to-purple-950/20"
-          style={{
-            transform: `translateY(${scrollY * 0.1}px)`,
-          }}
-        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50/30 to-pink-50/20" />
         
-        {/* Neural Network Pattern Overlay */}
         <div 
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-10"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-technology-background-with-neur-9f595ec8-20251110172318.jpg')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            transform: `translateY(${scrollY * 0.15}px) scale(1.1)`,
+            transform: `translateY(${scrollY * 0.1}px)`,
           }}
         />
 
-        {/* Data Science Workspace Illustration */}
         <div 
-          className="absolute top-0 right-0 w-1/2 h-full opacity-20"
+          className="absolute top-0 right-0 w-1/2 h-full opacity-8"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/minimalist-data-science-workspace-illust-05e224b6-20251110172317.jpg')`,
             backgroundSize: 'contain',
@@ -140,59 +132,38 @@ export default function WorkspacePage() {
             transform: `translateY(${scrollY * 0.05}px)`,
           }}
         />
-
-        {/* AI Brain Network - Bottom Left */}
-        <div 
-          className="absolute bottom-0 left-0 w-1/3 h-2/3 opacity-15"
-          style={{
-            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-artificial-intelligence-brain-n-872b5f5a-20251110172318.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'left bottom',
-            transform: `translateY(${scrollY * -0.08}px)`,
-          }}
-        />
-
-        {/* Gradient Overlay for Better Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-slate-950/90" />
-        
-        {/* Animated Glow Effects */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '700ms' }} />
       </div>
 
-      {/* Header with Glass Effect */}
-      <header className="border-b border-white/10 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 shadow-lg shadow-black/20">
+      {/* Header */}
+      <header className="border-b-2 border-border bg-white/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => router.push("/dashboard")} 
-              className="p-2 hover:bg-white/10 rounded-lg transition-all duration-300 hover:scale-110 group"
+              className="p-2.5 hover:bg-primary/10 rounded-xl transition-all duration-300 hover:scale-110 group"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-300 group-hover:text-white transition-colors" />
+              <ArrowLeft className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" />
             </button>
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
-              <div className="relative">
-                <h1 className="font-bold text-lg text-white">{workspace.name}</h1>
-                <p className="text-xs text-slate-400">{workspace.description || "No description"}</p>
-              </div>
+            <div>
+              <h1 className="font-bold text-lg text-foreground">{workspace.name}</h1>
+              <p className="text-xs text-muted-foreground">{workspace.description || "No description"}</p>
             </div>
           </div>
           <button 
-            className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-all duration-300" 
+            className="lg:hidden p-2.5 hover:bg-primary/10 rounded-xl transition-all" 
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
-            {sidebarOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
+            {sidebarOpen ? <X className="w-5 h-5 text-foreground" /> : <Menu className="w-5 h-5 text-foreground" />}
           </button>
         </div>
       </header>
 
       <div className="flex relative z-10">
-        {/* Sidebar with Glass Morphism */}
+        {/* Sidebar */}
         <aside 
           className={`${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0 fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-80 border-r border-white/10 bg-slate-950/50 backdrop-blur-xl transition-transform z-40 overflow-y-auto shadow-2xl`}
+          } lg:translate-x-0 fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-80 border-r-2 border-border bg-white/80 backdrop-blur-xl transition-transform z-40 overflow-y-auto shadow-lg`}
         >
           <nav className="p-4 space-y-2">
             {menuItems.map((item, index) => (
@@ -204,44 +175,44 @@ export default function WorkspacePage() {
                 }}
                 className={`w-full group relative overflow-hidden rounded-xl transition-all duration-300 ${
                   activeTab === item.id
-                    ? "scale-105"
-                    : "hover:scale-102"
+                    ? "scale-105 shadow-lg"
+                    : "hover:scale-102 hover:shadow-md"
                 }`}
                 style={{
                   animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
                 }}
               >
-                {/* Gradient Background */}
+                {/* Background */}
                 <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} transition-opacity duration-300 ${
                   activeTab === item.id ? "opacity-100" : "opacity-0 group-hover:opacity-10"
                 }`} />
                 
-                {/* Glass Effect Border */}
-                <div className={`absolute inset-0 rounded-xl border transition-colors duration-300 ${
+                {/* Border */}
+                <div className={`absolute inset-0 rounded-xl border-2 transition-colors duration-300 ${
                   activeTab === item.id 
-                    ? "border-white/30 shadow-lg shadow-white/10" 
-                    : "border-white/5 group-hover:border-white/20"
+                    ? "border-primary/50 shadow-md" 
+                    : "border-border group-hover:border-primary/30"
                 }`} />
                 
                 {/* Content */}
                 <div className="relative flex items-start gap-4 px-4 py-4">
-                  <div className={`p-2 rounded-lg transition-all duration-300 ${
+                  <div className={`p-2.5 rounded-xl transition-all duration-300 ${
                     activeTab === item.id
-                      ? "bg-white/20 shadow-lg"
-                      : "bg-white/5 group-hover:bg-white/10"
+                      ? "bg-white/30 shadow-md"
+                      : "bg-white/50 group-hover:bg-white/70"
                   }`}>
                     <item.icon className={`w-5 h-5 transition-colors duration-300 ${
-                      activeTab === item.id ? "text-white" : "text-slate-400 group-hover:text-white"
+                      activeTab === item.id ? "text-white" : "text-foreground group-hover:text-primary"
                     }`} />
                   </div>
                   <div className="text-left flex-1">
-                    <p className={`font-semibold text-sm transition-colors duration-300 ${
-                      activeTab === item.id ? "text-white" : "text-slate-300 group-hover:text-white"
+                    <p className={`font-bold text-sm transition-colors duration-300 ${
+                      activeTab === item.id ? "text-white" : "text-foreground group-hover:text-primary"
                     }`}>
                       {item.label}
                     </p>
                     <p className={`text-xs mt-1 transition-colors duration-300 ${
-                      activeTab === item.id ? "text-white/80" : "text-slate-500 group-hover:text-slate-400"
+                      activeTab === item.id ? "text-white/90" : "text-muted-foreground group-hover:text-muted-foreground"
                     }`}>
                       {item.description}
                     </p>
@@ -252,14 +223,13 @@ export default function WorkspacePage() {
           </nav>
         </aside>
 
-        {/* Main Content Area with Scroll Container */}
+        {/* Main Content */}
         <main 
           ref={mainRef}
           className="flex-1 overflow-y-auto h-[calc(100vh-4rem)] relative"
         >
           <div className="p-6 lg:p-8 min-h-full">
-            {/* Content Card with Glass Effect */}
-            <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-sm border-2 border-border rounded-2xl shadow-lg overflow-hidden">
               <div className="p-6 lg:p-8">
                 {activeTab === "dataset" && <DatasetManager workspaceId={params.id as string} />}
                 {activeTab === "train" && <ModelTraining workspaceId={params.id as string} />}
