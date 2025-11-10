@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { nluModels, session } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 async function validateSession(request: NextRequest) {
   const authHeader = request.headers.get('Authorization');
