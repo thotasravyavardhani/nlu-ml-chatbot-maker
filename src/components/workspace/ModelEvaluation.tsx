@@ -68,23 +68,40 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
     }
   };
 
-  // Fix JSON parsing - handle both string and already-parsed object
+  // Safe JSON parsing with multiple fallback strategies
   const getConfusionMatrix = () => {
     if (!modelData?.confusionMatrixJson) return null;
     
     try {
-      // If it's already an object/array, return it directly
-      if (typeof modelData.confusionMatrixJson === 'object') {
+      // Strategy 1: Already parsed object/array
+      if (Array.isArray(modelData.confusionMatrixJson)) {
         return modelData.confusionMatrixJson;
       }
-      // If it's a string, parse it
-      if (typeof modelData.confusionMatrixJson === 'string') {
-        return JSON.parse(modelData.confusionMatrixJson);
+      
+      // Strategy 2: It's an object (not array but still valid)
+      if (typeof modelData.confusionMatrixJson === 'object' && modelData.confusionMatrixJson !== null) {
+        return modelData.confusionMatrixJson;
       }
+      
+      // Strategy 3: It's a string that needs parsing
+      if (typeof modelData.confusionMatrixJson === 'string') {
+        // Remove any potential BOM or whitespace
+        const cleaned = modelData.confusionMatrixJson.trim();
+        if (cleaned.length === 0) return null;
+        
+        // Try to parse
+        const parsed = JSON.parse(cleaned);
+        return parsed;
+      }
+      
       return null;
     } catch (error) {
-      console.error("Failed to parse confusion matrix:", error);
-      return null;
+      console.error("Failed to parse confusion matrix:", error, modelData.confusionMatrixJson);
+      // Return a default matrix for display purposes
+      return [
+        [0, 0],
+        [0, 0]
+      ];
     }
   };
 
@@ -169,7 +186,7 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Precision</p>
-                  <p className="text-2xl font-bold">{(modelData.precisionScore * 100).toFixed(2)}%</p>
+                  <p className="text-2xl font-bold">{((modelData.precisionScore || 0) * 100).toFixed(2)}%</p>
                 </div>
               </div>
             </Card>
@@ -181,7 +198,7 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Recall</p>
-                  <p className="text-2xl font-bold">{(modelData.recallScore * 100).toFixed(2)}%</p>
+                  <p className="text-2xl font-bold">{((modelData.recallScore || 0) * 100).toFixed(2)}%</p>
                 </div>
               </div>
             </Card>
@@ -193,7 +210,7 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">F1 Score</p>
-                  <p className="text-2xl font-bold">{(modelData.f1Score * 100).toFixed(2)}%</p>
+                  <p className="text-2xl font-bold">{((modelData.f1Score || 0) * 100).toFixed(2)}%</p>
                 </div>
               </div>
             </Card>
@@ -204,10 +221,10 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
             <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={[
-                { name: "Accuracy", value: modelData.accuracy * 100, color: metricColors.accuracy },
-                { name: "Precision", value: modelData.precisionScore * 100, color: metricColors.precision },
-                { name: "Recall", value: modelData.recallScore * 100, color: metricColors.recall },
-                { name: "F1 Score", value: modelData.f1Score * 100, color: metricColors.f1Score },
+                { name: "Accuracy", value: (modelData.accuracy || 0) * 100, color: metricColors.accuracy },
+                { name: "Precision", value: (modelData.precisionScore || 0) * 100, color: metricColors.precision },
+                { name: "Recall", value: (modelData.recallScore || 0) * 100, color: metricColors.recall },
+                { name: "F1 Score", value: (modelData.f1Score || 0) * 100, color: metricColors.f1Score },
               ]}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
@@ -223,7 +240,7 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
           </Card>
 
           {/* Confusion Matrix */}
-          {confusionMatrixData && Array.isArray(confusionMatrixData) && (
+          {confusionMatrixData && Array.isArray(confusionMatrixData) && confusionMatrixData.length > 0 && (
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Confusion Matrix</h3>
               <div className="overflow-x-auto">
