@@ -157,7 +157,8 @@ export async function POST(request: NextRequest) {
       fileSize, 
       rowCount, 
       columnCount, 
-      columnsJson 
+      columnsJson,
+      fileFormat
     } = body;
 
     if (!workspaceId) {
@@ -234,6 +235,10 @@ export async function POST(request: NextRequest) {
 
     if (columnsJson !== undefined && columnsJson !== null) {
       insertData.columnsJson = columnsJson;
+    }
+
+    if (fileFormat !== undefined && fileFormat !== null) {
+      insertData.fileFormat = typeof fileFormat === 'string' ? fileFormat.trim() : fileFormat;
     }
 
     const newDataset = await db
