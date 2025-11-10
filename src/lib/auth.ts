@@ -20,3 +20,17 @@ export async function getCurrentUser(request: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   return session?.user || null;
 }
+
+// Alias for compatibility with new code
+export async function getAuthUser() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  return session?.user ? { userId: parseInt(session.user.id), email: session.user.email } : null;
+}
+
+export async function requireAuth() {
+  const user = await getAuthUser();
+  if (!user) {
+    throw new Error('Unauthorized');
+  }
+  return user;
+}

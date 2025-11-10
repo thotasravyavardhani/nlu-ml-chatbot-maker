@@ -3,12 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useSession, authClient } from "@/lib/auth-client";
 import { Brain, Plus, Folder, Settings, User, LogOut, Loader2, Calendar, TrendingUp } from "lucide-react";
 
 interface Workspace {
@@ -19,15 +14,9 @@ interface Workspace {
   updatedAt: string;
 }
 
-interface UserData {
-  id: number;
-  email: string;
-  fullName: string | null;
-}
-
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserData | null>(null);
+  const { data: session, isPending, refetch } = useSession();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -35,25 +24,27 @@ export default function DashboardPage() {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    fetchUserData();
-    fetchWorkspaces();
-  }, []);
-
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch("/api/auth/me");
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
+    if (!isPending && !session?.user) {
+      router.push("/login");
     }
-  };
+  }, [session, isPending, router]);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchWorkspaces();
+    }
+  }, [session]);
 
   const fetchWorkspaces = async () => {
     try {
-      const response = await fetch("/api/workspaces");
+      setLoading(true);
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch("/api/workspaces", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       if (response.ok) {
         const data = await response.json();
         setWorkspaces(data);
@@ -67,12 +58,18 @@ export default function DashboardPage() {
 
   const handleCreateWorkspace = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newWorkspace.name.trim()) return;
+    
     setCreating(true);
 
     try {
+      const token = localStorage.getItem("bearer_token");
       const response = await fetch("/api/workspaces", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(newWorkspace),
       });
 
@@ -90,16 +87,29 @@ export default function DashboardPage() {
   };
 
   const handleSignOut = async () => {
-    await fetch("/api/auth/signout", { method: "POST" });
+    const token = localStorage.getItem("bearer_token");
+    await authClient.signOut({
+      fetchOptions: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+    localStorage.removeItem("bearer_token");
+    refetch();
     router.push("/");
   };
 
-  if (loading) {
+  if (isPending || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  if (!session?.user) {
+    return null;
   }
 
   return (
@@ -109,23 +119,18 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
             <Brain className="w-8 h-8 text-primary" />
-            <span className="font-bold text-xl">NLU Studio</span>
+            <span className="font-bold text-xl">NLU ML Platform</span>
           </Link>
 
           <div className="flex items-center gap-4">
             <Link href="/settings">
-              <Button variant="ghost" size="icon">
+              <button className="p-2 hover:bg-accent rounded-lg transition-colors">
                 <Settings className="w-5 h-5" />
-              </Button>
+              </button>
             </Link>
-            <Link href="/profile">
-              <Button variant="ghost" size="icon">
-                <User className="w-5 h-5" />
-              </Button>
-            </Link>
-            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+            <button onClick={handleSignOut} className="p-2 hover:bg-accent rounded-lg transition-colors">
               <LogOut className="w-5 h-5" />
-            </Button>
+            </button>
           </div>
         </div>
       </header>
@@ -135,7 +140,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
-            Welcome back, {user?.fullName || user?.email || "User"}! 👋
+            Welcome back, {session.user.name || session.user.email || "User"}! 👋
           </h1>
           <p className="text-muted-foreground">
             Manage your NLU and ML workspaces, train models, and build intelligent chatbots.
@@ -144,7 +149,7 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="p-6">
+          <div className="bg-card border border-border rounded-xl p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Folder className="w-6 h-6 text-primary" />
@@ -154,103 +159,66 @@ export default function DashboardPage() {
                 <p className="text-2xl font-bold">{workspaces.length}</p>
               </div>
             </div>
-          </Card>
+          </div>
 
-          <Card className="p-6">
+          <div className="bg-card border border-border rounded-xl p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Brain className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Active Projects</p>
+                <p className="text-2xl font-bold">{workspaces.length}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Models Trained</p>
                 <p className="text-2xl font-bold">0</p>
               </div>
             </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Avg Accuracy</p>
-                <p className="text-2xl font-bold">--</p>
-              </div>
-            </div>
-          </Card>
+          </div>
         </div>
 
         {/* Workspaces Section */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Your Workspaces</h2>
-          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                New Workspace
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Workspace</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateWorkspace} className="space-y-4 mt-4">
-                <div>
-                  <Label htmlFor="name">Workspace Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="My Chatbot Project"
-                    value={newWorkspace.name}
-                    onChange={(e) => setNewWorkspace({ ...newWorkspace, name: e.target.value })}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Describe your workspace..."
-                    value={newWorkspace.description}
-                    onChange={(e) => setNewWorkspace({ ...newWorkspace, description: e.target.value })}
-                    className="mt-1"
-                    rows={3}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={creating}>
-                  {creating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    "Create Workspace"
-                  )}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <button
+            onClick={() => setCreateDialogOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            New Workspace
+          </button>
         </div>
 
         {/* Workspaces Grid */}
         {workspaces.length === 0 ? (
-          <Card className="p-12 text-center">
+          <div className="bg-card border border-border rounded-xl p-12 text-center">
             <Folder className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No workspaces yet</h3>
             <p className="text-muted-foreground mb-6">
               Create your first workspace to start building intelligent chatbots
             </p>
-            <Button onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
+            <button
+              onClick={() => setCreateDialogOpen(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
               Create Your First Workspace
-            </Button>
-          </Card>
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {workspaces.map((workspace) => (
               <Link key={workspace.id} href={`/workspace/${workspace.id}`}>
-                <Card className="p-6 hover:shadow-lg transition cursor-pointer h-full">
+                <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer h-full">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Folder className="w-6 h-6 text-primary" />
@@ -266,12 +234,76 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   </div>
-                </Card>
+                </div>
               </Link>
             ))}
           </div>
         )}
       </main>
+
+      {/* Create Workspace Modal */}
+      {createDialogOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card border border-border rounded-xl max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Create New Workspace</h2>
+            <form onSubmit={handleCreateWorkspace} className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                  Workspace Name *
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  required
+                  value={newWorkspace.name}
+                  onChange={(e) => setNewWorkspace({ ...newWorkspace, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="My NLU Project"
+                />
+              </div>
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
+                  Description (optional)
+                </label>
+                <textarea
+                  id="description"
+                  rows={3}
+                  value={newWorkspace.description}
+                  onChange={(e) => setNewWorkspace({ ...newWorkspace, description: e.target.value })}
+                  className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                  placeholder="Describe your workspace..."
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCreateDialogOpen(false);
+                    setNewWorkspace({ name: "", description: "" });
+                  }}
+                  className="flex-1 px-4 py-2 border border-border rounded-lg font-medium hover:bg-accent transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creating || !newWorkspace.name.trim()}
+                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {creating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Workspace"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
