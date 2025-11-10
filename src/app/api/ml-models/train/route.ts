@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { mlModels, datasets, session } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import path from 'path';
+import fs from 'fs';
 
 async function validateSession(request: NextRequest) {
   const authHeader = request.headers.get('Authorization');
@@ -36,73 +38,33 @@ async function validateSession(request: NextRequest) {
   }
 }
 
-// Simulate ML model training with realistic results
-function simulateModelTraining(algorithmId: string, problemType: string) {
-  const algorithmNames: Record<string, string> = {
-    // Classification
-    random_forest: "Random Forest",
-    xgboost: "XGBoost",
-    gradient_boosting: "Gradient Boosting",
-    svm: "Support Vector Machine",
-    logistic_regression: "Logistic Regression",
-    decision_tree: "Decision Tree",
-    knn: "K-Nearest Neighbors",
-    naive_bayes: "Naive Bayes",
-    // Regression
-    linear_regression: "Linear Regression",
-    ridge: "Ridge Regression",
-    lasso: "Lasso Regression",
-    random_forest_regressor: "Random Forest Regressor",
-    xgboost_regressor: "XGBoost Regressor",
-    svr: "Support Vector Regression",
-    decision_tree_regressor: "Decision Tree Regressor",
-    gradient_boosting_regressor: "Gradient Boosting Regressor",
-    // Clustering
-    kmeans: "K-Means",
-    dbscan: "DBSCAN",
-    hierarchical: "Hierarchical Clustering",
-    gmm: "Gaussian Mixture Models",
-    mean_shift: "Mean Shift",
-    spectral: "Spectral Clustering",
-  };
-
-  // Generate realistic metrics based on algorithm type
-  const baseAccuracy = Math.random() * 0.15 + 0.80; // 80-95%
-  
-  if (problemType === 'clustering') {
-    return {
-      algorithmId,
-      algorithmName: algorithmNames[algorithmId] || algorithmId,
-      success: true,
-      accuracy: baseAccuracy, // Silhouette score for clustering
-      nClusters: Math.floor(Math.random() * 5) + 3, // 3-7 clusters
-      inertia: Math.random() * 1000 + 500, // Inertia value
-      trainingDuration: Math.floor(Math.random() * 3000) + 1000, // 1-4 seconds
-    };
-  }
-
-  // Supervised learning metrics
-  const precision = baseAccuracy + (Math.random() * 0.05 - 0.025);
-  const recall = baseAccuracy + (Math.random() * 0.05 - 0.025);
-  const f1Score = 2 * (precision * recall) / (precision + recall);
-
-  return {
-    algorithmId,
-    algorithmName: algorithmNames[algorithmId] || algorithmId,
-    success: true,
-    accuracy: baseAccuracy,
-    precision,
-    recall,
-    f1Score,
-    confusionMatrix: [
-      [85, 5, 3, 7],
-      [4, 92, 2, 2],
-      [6, 3, 88, 3],
-      [5, 4, 2, 89],
-    ],
-    trainingDuration: Math.floor(Math.random() * 5000) + 2000, // 2-7 seconds
-  };
-}
+const algorithmNames: Record<string, string> = {
+  // Classification
+  random_forest: "Random Forest",
+  xgboost: "XGBoost",
+  gradient_boosting: "Gradient Boosting",
+  svm: "Support Vector Machine",
+  logistic_regression: "Logistic Regression",
+  decision_tree: "Decision Tree",
+  knn: "K-Nearest Neighbors",
+  naive_bayes: "Naive Bayes",
+  // Regression
+  linear_regression: "Linear Regression",
+  ridge: "Ridge Regression",
+  lasso: "Lasso Regression",
+  random_forest_regressor: "Random Forest Regressor",
+  xgboost_regressor: "XGBoost Regressor",
+  svr: "Support Vector Regression",
+  decision_tree_regressor: "Decision Tree Regressor",
+  gradient_boosting_regressor: "Gradient Boosting Regressor",
+  // Clustering
+  kmeans: "K-Means",
+  dbscan: "DBSCAN",
+  hierarchical: "Hierarchical Clustering",
+  gmm: "Gaussian Mixture Models",
+  mean_shift: "Mean Shift",
+  spectral: "Spectral Clustering",
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -167,39 +129,113 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Train models and collect results
-    const results = [];
+    const datasetRecord = dataset[0];
+    
+    // Try to call Python ML service if available
+    const pythonServiceUrl = process.env.PYTHON_ML_SERVICE_URL;
+    let results = [];
+    let usePythonBackend = false;
+
+    if (pythonServiceUrl) {
+      try {
+        // Call Python ML service
+        const pythonResponse = await fetch(`${pythonServiceUrl}/train`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dataset_path: datasetRecord.filePath,
+            file_format: datasetRecord.fileFormat || 'csv',
+            problem_type: problemType,
+            target_column: targetColumn,
+            algorithms: algorithms,
+            workspace_id: workspaceId,
+          }),
+        });
+
+        if (pythonResponse.ok) {
+          const pythonData = await pythonResponse.json();
+          results = pythonData.results;
+          usePythonBackend = true;
+          console.log('✅ Using Python ML Backend');
+        } else {
+          console.warn('Python ML service unavailable, using simulation mode');
+        }
+      } catch (error) {
+        console.warn('Python ML service error, using simulation mode:', error);
+      }
+    }
+
+    // Fallback to simulation if Python backend not available
+    if (!usePythonBackend) {
+      console.log('⚠️ Using Simulation Mode (Python backend not connected)');
+      // Simulation fallback
+      for (const algorithmId of algorithms) {
+        const baseAccuracy = Math.random() * 0.15 + 0.80;
+        
+        if (problemType === 'clustering') {
+          results.push({
+            algorithmId,
+            success: true,
+            accuracy: baseAccuracy,
+            nClusters: Math.floor(Math.random() * 5) + 3,
+            inertia: Math.random() * 1000 + 500,
+            trainingDuration: Math.floor(Math.random() * 3000) + 1000,
+            modelPath: `/models/simulated/${workspaceId}_${algorithmId}_${Date.now()}.pkl`,
+          });
+        } else {
+          const precision = baseAccuracy + (Math.random() * 0.05 - 0.025);
+          const recall = baseAccuracy + (Math.random() * 0.05 - 0.025);
+          const f1Score = 2 * (precision * recall) / (precision + recall);
+
+          results.push({
+            algorithmId,
+            success: true,
+            accuracy: baseAccuracy,
+            precision,
+            recall,
+            f1Score,
+            confusionMatrix: [
+              [85, 5, 3, 7],
+              [4, 92, 2, 2],
+              [6, 3, 88, 3],
+              [5, 4, 2, 89],
+            ],
+            trainingDuration: Math.floor(Math.random() * 5000) + 2000,
+            modelPath: `/models/simulated/${workspaceId}_${algorithmId}_${Date.now()}.pkl`,
+          });
+        }
+      }
+    }
+
+    // Save models to database and find best model
     let bestAccuracy = 0;
     let bestModelIndex = 0;
+    const savedResults = [];
 
-    for (let i = 0; i < algorithms.length; i++) {
-      const algorithmId = algorithms[i];
-      const result = simulateModelTraining(algorithmId, problemType);
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
       
-      // Track best model
       if (result.accuracy > bestAccuracy) {
         bestAccuracy = result.accuracy;
         bestModelIndex = i;
       }
 
-      // Save to database
       const now = new Date().toISOString();
       const modelData: any = {
         workspaceId: parseInt(workspaceId),
         datasetId: parseInt(datasetId),
-        modelName: `${result.algorithmName} - ${new Date().toLocaleString()}`,
+        modelName: `${algorithmNames[result.algorithmId]} - ${new Date().toLocaleString()}`,
         algorithmType: result.algorithmId,
         targetColumn: targetColumn || 'unsupervised',
-        featureColumnsJson: dataset[0].columnsJson,
-        modelFilePath: `/models/${workspaceId}/${result.algorithmId}_${Date.now()}.pkl`,
+        featureColumnsJson: datasetRecord.columnsJson,
+        modelFilePath: result.modelPath,
         accuracy: result.accuracy,
         trainingDuration: result.trainingDuration,
-        isSelected: false, // Will update best model after loop
+        isSelected: false,
         trainedAt: now,
         updatedAt: now,
       };
 
-      // Add supervised learning metrics
       if (problemType !== 'clustering') {
         modelData.precisionScore = result.precision;
         modelData.recallScore = result.recall;
@@ -209,28 +245,28 @@ export async function POST(request: NextRequest) {
 
       const [savedModel] = await db.insert(mlModels).values(modelData).returning();
       
-      results.push({
+      savedResults.push({
         ...result,
+        algorithmName: algorithmNames[result.algorithmId] || result.algorithmId,
         modelId: savedModel.id,
         selected: false,
       });
     }
 
     // Mark best model as selected
-    if (results.length > 0) {
-      results[bestModelIndex].selected = true;
-      
-      // Update database to mark best model
+    if (savedResults.length > 0) {
+      savedResults[bestModelIndex].selected = true;
       await db
         .update(mlModels)
         .set({ isSelected: true, updatedAt: new Date().toISOString() })
-        .where(eq(mlModels.id, results[bestModelIndex].modelId));
+        .where(eq(mlModels.id, savedResults[bestModelIndex].modelId));
     }
 
     return NextResponse.json({
       message: 'Models trained successfully',
-      results,
-      bestModel: results[bestModelIndex],
+      results: savedResults,
+      bestModel: savedResults[bestModelIndex],
+      backend: usePythonBackend ? 'python' : 'simulation',
     }, { status: 201 });
 
   } catch (error) {

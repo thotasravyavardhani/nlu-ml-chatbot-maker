@@ -38,7 +38,6 @@ async function validateSession(request: NextRequest) {
 
 // Simulate ML model prediction with realistic results
 function simulatePrediction(input: Record<string, any>, algorithmType: string, targetColumn: string) {
-  // Generate realistic prediction based on algorithm type
   const isClassification = ['random_forest', 'xgboost', 'gradient_boosting', 'svm', 
     'logistic_regression', 'decision_tree', 'knn', 'naive_bayes'].includes(algorithmType);
   
@@ -49,18 +48,15 @@ function simulatePrediction(input: Record<string, any>, algorithmType: string, t
   let confidence;
 
   if (isClassification) {
-    // Generate class prediction (0, 1, 2, 3, or labels like "Yes", "No", "A", "B", etc.)
     const classes = ['0', '1', '2', '3', 'Yes', 'No', 'A', 'B', 'C', 'High', 'Medium', 'Low'];
-    prediction = classes[Math.floor(Math.random() * 4)]; // Most common: 0-3
-    confidence = Math.random() * 0.25 + 0.70; // 70-95%
+    prediction = classes[Math.floor(Math.random() * 4)];
+    confidence = Math.random() * 0.25 + 0.70;
   } else if (isRegression) {
-    // Generate continuous value
-    prediction = (Math.random() * 100 + 20).toFixed(2); // 20-120 range
-    confidence = Math.random() * 0.15 + 0.80; // 80-95%
+    prediction = (Math.random() * 100 + 20).toFixed(2);
+    confidence = Math.random() * 0.15 + 0.80;
   } else {
-    // Clustering - return cluster ID
     prediction = `Cluster ${Math.floor(Math.random() * 5)}`;
-    confidence = Math.random() * 0.20 + 0.75; // 75-95%
+    confidence = Math.random() * 0.20 + 0.75;
   }
 
   return {
@@ -83,7 +79,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { modelId, data } = body;
 
-    // Validate required fields
     if (!modelId) {
       return NextResponse.json(
         { error: 'modelId is required', code: 'MISSING_MODEL_ID' },
@@ -132,10 +127,42 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate predictions for all samples
-    const predictions = data.map(sample => 
-      simulatePrediction(sample, modelData.algorithmType, modelData.targetColumn)
-    );
+    // Try Python ML service first
+    const pythonServiceUrl = process.env.PYTHON_ML_SERVICE_URL;
+    let predictions;
+    let usePythonBackend = false;
+
+    if (pythonServiceUrl && modelData.modelFilePath && !modelData.modelFilePath.includes('simulated')) {
+      try {
+        const pythonResponse = await fetch(`${pythonServiceUrl}/predict`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model_path: modelData.modelFilePath,
+            data: data,
+          }),
+        });
+
+        if (pythonResponse.ok) {
+          const pythonData = await pythonResponse.json();
+          predictions = pythonData.predictions;
+          usePythonBackend = true;
+          console.log('✅ Using Python ML Backend for prediction');
+        } else {
+          console.warn('Python ML service unavailable for prediction, using simulation');
+        }
+      } catch (error) {
+        console.warn('Python ML service error for prediction, using simulation:', error);
+      }
+    }
+
+    // Fallback to simulation
+    if (!usePythonBackend) {
+      console.log('⚠️ Using Simulation Mode for prediction');
+      predictions = data.map(sample => 
+        simulatePrediction(sample, modelData.algorithmType, modelData.targetColumn)
+      );
+    }
 
     return NextResponse.json({
       message: 'Predictions generated successfully',
@@ -144,6 +171,7 @@ export async function POST(request: NextRequest) {
       targetColumn: modelData.targetColumn,
       predictions,
       totalPredictions: predictions.length,
+      backend: usePythonBackend ? 'python' : 'simulation',
     }, { status: 200 });
 
   } catch (error) {
