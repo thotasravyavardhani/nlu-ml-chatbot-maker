@@ -28,7 +28,6 @@ export default function WorkspacePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("dataset");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [scrollY, setScrollY] = useState(0);
   const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,20 +41,6 @@ export default function WorkspacePage() {
       fetchWorkspace();
     }
   }, [params.id, session]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (mainRef.current) {
-        setScrollY(mainRef.current.scrollTop);
-      }
-    };
-
-    const mainElement = mainRef.current;
-    if (mainElement) {
-      mainElement.addEventListener("scroll", handleScroll);
-      return () => mainElement.removeEventListener("scroll", handleScroll);
-    }
-  }, []);
 
   const fetchWorkspace = async () => {
     try {
@@ -107,41 +92,9 @@ export default function WorkspacePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Parallax Background - Properly Contained */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50/30 to-pink-50/20" />
-        
-        {/* Top illustration - properly positioned */}
-        <div 
-          className="absolute top-10 right-10 w-[400px] h-[300px] opacity-[0.05]"
-          style={{
-            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-technology-background-with-neur-9f595ec8-20251110172318.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            transform: `translateY(${scrollY * 0.1}px)`,
-            borderRadius: '40%',
-          }}
-        />
-
-        {/* Bottom illustration - properly positioned */}
-        <div 
-          className="absolute bottom-10 left-10 w-[350px] h-[280px] opacity-[0.04]"
-          style={{
-            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/minimalist-data-science-workspace-illust-05e224b6-20251110172317.jpg')`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            transform: `translateY(${scrollY * 0.05}px)`,
-          }}
-        />
-
-        {/* Center gradient orb */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50/30 to-pink-50/20">
       {/* Header */}
-      <header className="border-b-2 border-border bg-white/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+      <header className="border-b-2 border-border bg-white/90 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
@@ -150,9 +103,14 @@ export default function WorkspacePage() {
             >
               <ArrowLeft className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" />
             </button>
-            <div>
-              <h1 className="font-bold text-lg text-foreground">{workspace.name}</h1>
-              <p className="text-xs text-muted-foreground">{workspace.description || "No description"}</p>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-md">
+                <Brain className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="font-bold text-lg text-foreground">{workspace.name}</h1>
+                <p className="text-xs text-muted-foreground">{workspace.description || "No description"}</p>
+              </div>
             </div>
           </div>
           <button 
@@ -164,12 +122,12 @@ export default function WorkspacePage() {
         </div>
       </header>
 
-      <div className="flex relative z-10">
+      <div className="flex">
         {/* Sidebar */}
         <aside 
           className={`${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0 fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-80 border-r-2 border-border bg-white/80 backdrop-blur-xl transition-transform z-40 overflow-y-auto shadow-lg`}
+          } lg:translate-x-0 fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] w-80 border-r-2 border-border bg-white/90 backdrop-blur-xl transition-transform z-40 overflow-y-auto shadow-lg`}
         >
           <nav className="p-4 space-y-2">
             {menuItems.map((item, index) => (
@@ -232,10 +190,10 @@ export default function WorkspacePage() {
         {/* Main Content */}
         <main 
           ref={mainRef}
-          className="flex-1 overflow-y-auto h-[calc(100vh-4rem)] relative"
+          className="flex-1 overflow-y-auto h-[calc(100vh-4rem)]"
         >
           <div className="p-6 lg:p-8 min-h-full">
-            <div className="bg-white/80 backdrop-blur-sm border-2 border-border rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-white border-2 border-border rounded-2xl shadow-lg overflow-hidden">
               <div className="p-6 lg:p-8">
                 {activeTab === "dataset" && <DatasetManager workspaceId={params.id as string} />}
                 {activeTab === "train" && <ModelTraining workspaceId={params.id as string} />}
