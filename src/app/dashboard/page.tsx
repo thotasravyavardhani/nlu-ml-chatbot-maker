@@ -1,34 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useSession, authClient } from "@/lib/auth-client";
-import { Brain, Plus, Folder, Settings, LogOut, Loader2, Calendar, TrendingUp, Sparkles, Zap, Database } from "lucide-react";
+import { Brain, Plus, Trash2, Calendar, FolderOpen, Loader2, LogOut, Sparkles, TrendingUp, BarChart3 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Workspace {
   id: number;
   name: string;
   description: string | null;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
 }
 
-export default function DashboardPage() {
+export default function Dashboard() {
+  const { data: session, isPending } = useSession();
   const router = useRouter();
-  const { data: session, isPending, refetch } = useSession();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(true);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newWorkspace, setNewWorkspace] = useState({ name: "", description: "" });
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [creating, setCreating] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     if (!isPending && !session?.user) {
@@ -42,6 +36,12 @@ export default function DashboardPage() {
     }
   }, [session]);
 
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const fetchWorkspaces = async () => {
     try {
       setLoading(true);
@@ -51,13 +51,13 @@ export default function DashboardPage() {
           Authorization: `Bearer ${token}`,
         },
       });
-
       if (response.ok) {
         const data = await response.json();
         setWorkspaces(data);
       }
     } catch (error) {
       console.error("Failed to fetch workspaces:", error);
+      toast.error("Failed to load workspaces");
     } finally {
       setLoading(false);
     }
@@ -65,54 +65,82 @@ export default function DashboardPage() {
 
   const handleCreateWorkspace = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newWorkspace.name.trim()) return;
-    
-    setCreating(true);
+    if (!name.trim()) {
+      toast.error("Workspace name is required");
+      return;
+    }
 
+    setCreating(true);
     try {
       const token = localStorage.getItem("bearer_token");
       const response = await fetch("/api/workspaces", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newWorkspace),
+        body: JSON.stringify({ name, description }),
       });
 
       if (response.ok) {
-        const workspace = await response.json();
-        setWorkspaces([workspace, ...workspaces]);
-        setNewWorkspace({ name: "", description: "" });
-        setCreateDialogOpen(false);
+        const newWorkspace = await response.json();
+        toast.success("Workspace created successfully!");
+        setShowCreateModal(false);
+        setName("");
+        setDescription("");
+        router.push(`/workspace/${newWorkspace.id}`);
+      } else {
+        toast.error("Failed to create workspace");
       }
     } catch (error) {
       console.error("Failed to create workspace:", error);
+      toast.error("An error occurred");
     } finally {
       setCreating(false);
     }
   };
 
-  const handleSignOut = async () => {
-    const token = localStorage.getItem("bearer_token");
-    await authClient.signOut({
-      fetchOptions: {
+  const handleDeleteWorkspace = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this workspace?")) return;
+
+    try {
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch(`/api/workspaces/${id}`, {
+        method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
-    });
-    localStorage.removeItem("bearer_token");
-    refetch();
-    router.push("/");
+      });
+
+      if (response.ok) {
+        toast.success("Workspace deleted successfully");
+        fetchWorkspaces();
+      } else {
+        toast.error("Failed to delete workspace");
+      }
+    } catch (error) {
+      console.error("Failed to delete workspace:", error);
+      toast.error("An error occurred");
+    }
+  };
+
+  const handleSignOut = async () => {
+    const { authClient } = await import("@/lib/auth-client");
+    const { error } = await authClient.signOut();
+    if (error?.code) {
+      toast.error(error.code);
+    } else {
+      localStorage.removeItem("bearer_token");
+      router.push("/");
+    }
   };
 
   if (isPending || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50/30 to-pink-50/20">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 font-semibold">Loading your workspace...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground font-medium">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -123,257 +151,263 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Enhanced Parallax Background - Better Positioned */}
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Professional Background - Properly Positioned */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Soft gradient base */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-purple-50/40 to-pink-50/20" />
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-purple-50/40 to-pink-50/20" />
         
-        {/* Data science workspace - top right, properly contained */}
+        {/* Top right illustration - contained */}
         <div 
-          className="absolute -top-24 -right-24 w-[550px] h-[550px] opacity-[0.07]"
+          className="absolute top-20 right-10 w-[450px] h-[350px] opacity-[0.06]"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/minimalist-data-science-workspace-illust-05e224b6-20251110172317.jpg')`,
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
             backgroundPosition: 'center',
-            transform: `translateY(${scrollY * 0.08}px) rotate(10deg)`,
-            borderRadius: '35%',
+            backgroundRepeat: 'no-repeat',
+            transform: `translateY(${scrollY * 0.1}px)`,
           }}
         />
 
-        {/* ML visualization - bottom left */}
+        {/* Bottom left illustration - contained */}
         <div 
-          className="absolute -bottom-28 -left-24 w-[500px] h-[500px] opacity-[0.06]"
+          className="absolute bottom-20 left-10 w-[400px] h-[300px] opacity-[0.05]"
           style={{
-            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/machine-learning-model-training-visualiz-ab0f39a7-20251110154558.jpg')`,
-            backgroundSize: 'cover',
+            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/workspace-and-project-management-illustr-f847cbbe-20251110154558.jpg')`,
+            backgroundSize: 'contain',
             backgroundPosition: 'center',
-            transform: `translateY(${scrollY * -0.06}px)`,
-            borderRadius: '40%',
+            backgroundRepeat: 'no-repeat',
+            transform: `translateY(${scrollY * -0.08}px)`,
           }}
         />
 
-        {/* Decorative gradient orbs */}
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-purple-400/5 rounded-full blur-3xl" />
+        {/* Center subtle pattern */}
+        <div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] opacity-[0.03]"
+          style={{
+            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-technology-background-with-neur-9f595ec8-20251110172318.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            borderRadius: '50%',
+          }}
+        />
+
+        {/* Gradient orbs - properly positioned */}
+        <div className="absolute top-1/3 right-1/3 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-purple-400/10 rounded-full blur-3xl" />
       </div>
 
-      {/* Header - Enhanced */}
-      <header className="border-b-2 border-gray-200 bg-white/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-lg">
-              <Brain className="w-6 h-6 text-white" />
+      {/* Navigation */}
+      <nav className="border-b-2 border-border bg-white/90 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-lg">
+                <Brain className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-xl font-bold text-foreground">NLU ML Platform</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">NLU ML Platform</span>
-          </Link>
-
-          <div className="flex items-center gap-3">
-            <Link href="/settings">
-              <button className="p-2.5 hover:bg-blue-50 rounded-xl transition-all hover:scale-110 border-2 border-transparent hover:border-blue-200">
-                <Settings className="w-5 h-5 text-gray-700" />
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-bold text-foreground">{session.user.name}</p>
+                <p className="text-xs text-muted-foreground">{session.user.email}</p>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 border-2 border-red-200 rounded-xl transition-all hover:shadow-md"
+              >
+                <LogOut className="h-4 w-4 inline mr-1" />
+                Sign Out
               </button>
-            </Link>
-            <button onClick={handleSignOut} className="p-2.5 hover:bg-red-50 rounded-xl transition-all hover:scale-110 group border-2 border-transparent hover:border-red-200">
-              <LogOut className="w-5 h-5 text-gray-700 group-hover:text-red-600" />
-            </button>
+            </div>
           </div>
         </div>
-      </header>
+      </nav>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 relative z-10">
-        {/* Welcome Section - Enhanced */}
-        <div className="mb-10" style={{ animation: 'fadeInUp 0.6s ease-out' }}>
-          <div className="flex items-start justify-between flex-wrap gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-4xl font-extrabold text-gray-900">
-                  Welcome back, {session.user.name || session.user.email?.split('@')[0] || "User"}!
-                </h1>
-                <div className="animate-bounce">
-                  <Sparkles className="w-7 h-7 text-amber-500" />
-                </div>
-              </div>
-              <p className="text-lg text-gray-600 font-medium">
-                Manage your NLU and ML workspaces, train models, and build intelligent chatbots.
-              </p>
-            </div>
-            <button
-              onClick={() => setCreateDialogOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all transform hover:scale-105 shadow-lg"
-            >
-              <Plus className="w-5 h-5" />
-              New Workspace
-            </button>
-          </div>
-        </div>
-
-        {/* Quick Stats - Enhanced Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {[
-            { 
-              icon: Folder, 
-              label: "Total Workspaces", 
-              value: workspaces.length, 
-              gradient: "from-blue-500 to-cyan-500",
-              bgGradient: "from-blue-50 to-cyan-50",
-              description: "Active projects"
-            },
-            { 
-              icon: Database, 
-              label: "Datasets Uploaded", 
-              value: workspaces.length * 2, 
-              gradient: "from-purple-500 to-pink-500",
-              bgGradient: "from-purple-50 to-pink-50",
-              description: "Ready for training"
-            },
-            { 
-              icon: TrendingUp, 
-              label: "Models Trained", 
-              value: workspaces.length * 3, 
-              gradient: "from-green-500 to-emerald-500",
-              bgGradient: "from-green-50 to-emerald-50",
-              description: "All algorithms"
-            },
-          ].map((stat, index) => (
-            <div 
-              key={index}
-              className="bg-white border-2 border-gray-200 rounded-2xl p-6 hover:shadow-xl hover:border-blue-300 transition-all hover:-translate-y-1 group"
-              style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-16 h-16 bg-gradient-to-br ${stat.bgGradient} border-2 border-gray-200 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
-                  <stat.icon className={`w-8 h-8 bg-gradient-to-r ${stat.gradient} bg-clip-text`} style={{ WebkitTextFillColor: 'transparent', backgroundClip: 'text' }} />
-                </div>
-                <Zap className={`w-5 h-5 text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity`} />
-              </div>
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section with Stats */}
+        <div className="mb-8">
+          <div className="bg-white/90 backdrop-blur-sm border-2 border-border rounded-2xl p-8 shadow-lg">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div>
-                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">{stat.label}</p>
-                <p className="text-4xl font-extrabold text-gray-900 mb-1">{stat.value}</p>
-                <p className="text-sm text-gray-600 font-medium">{stat.description}</p>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border-2 border-blue-200 rounded-full mb-3">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <span className="text-xs font-bold text-blue-700">AI-Powered Platform</span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-2">
+                  Welcome back, {session.user.name?.split(" ")[0]}! 👋
+                </h1>
+                <p className="text-lg text-muted-foreground font-medium">
+                  Manage your ML workspaces and build intelligent chatbots
+                </p>
+              </div>
+              
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4 text-center">
+                  <div className="flex justify-center mb-2">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <FolderOpen className="w-5 h-5 text-blue-600" />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold text-foreground">{workspaces.length}</p>
+                  <p className="text-xs text-muted-foreground font-semibold">Workspaces</p>
+                </div>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-4 text-center">
+                  <div className="flex justify-center mb-2">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <TrendingUp className="w-5 h-5 text-purple-600" />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold text-foreground">Active</p>
+                  <p className="text-xs text-muted-foreground font-semibold">Status</p>
+                </div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Workspaces Section */}
         <div className="mb-6">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Your Workspaces</h2>
-          <p className="text-gray-600 font-medium">Access and manage all your ML projects in one place</p>
-        </div>
-
-        {/* Workspaces Grid */}
-        {workspaces.length === 0 ? (
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-dashed border-blue-300 rounded-3xl p-16 text-center">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-              <Folder className="w-12 h-12 text-white" />
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">Your Workspaces</h2>
+              <p className="text-sm text-muted-foreground font-medium mt-1">Create and manage ML projects</p>
             </div>
-            <h3 className="text-3xl font-extrabold text-gray-900 mb-3">No workspaces yet</h3>
-            <p className="text-gray-600 mb-8 text-lg font-medium max-w-md mx-auto">
-              Create your first workspace to start building intelligent chatbots with ML-powered NLU
-            </p>
             <button
-              onClick={() => setCreateDialogOpen(true)}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-2xl transition-all transform hover:scale-105 shadow-lg"
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all shadow-md transform hover:scale-105"
             >
-              <Plus className="w-5 h-5" />
-              Create Your First Workspace
+              <Plus className="h-5 w-5" />
+              New Workspace
             </button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {workspaces.map((workspace, index) => (
-              <Link key={workspace.id} href={`/workspace/${workspace.id}`}>
-                <div 
-                  className="bg-white border-2 border-gray-200 rounded-2xl p-6 hover:shadow-2xl hover:border-blue-400 transition-all cursor-pointer h-full group hover:-translate-y-2"
-                  style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}
+
+          {workspaces.length === 0 ? (
+            <div className="bg-white/90 backdrop-blur-sm border-2 border-dashed border-border rounded-2xl p-12 text-center shadow-lg">
+              <div className="max-w-md mx-auto">
+                <div className="inline-flex p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl mb-4">
+                  <Brain className="h-12 w-12 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-2">No workspaces yet</h3>
+                <p className="text-muted-foreground mb-6 font-medium">
+                  Get started by creating your first workspace to organize your ML projects and chatbots.
+                </p>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all shadow-md transform hover:scale-105"
                 >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-gray-200 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:border-blue-300 transition-all shadow-md">
-                      <Folder className="w-7 h-7 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-xl mb-1 truncate text-gray-900 group-hover:text-blue-600 transition-colors">{workspace.name}</h3>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 font-semibold">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {new Date(workspace.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  <Plus className="h-5 w-5" />
+                  Create First Workspace
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {workspaces.map((workspace) => (
+                <div
+                  key={workspace.id}
+                  className="bg-white/90 backdrop-blur-sm border-2 border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300 group hover:-translate-y-1 shadow-lg"
+                >
+                  {/* Card Header with Gradient */}
+                  <div className="h-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600" />
+                  
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="p-3 bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl">
+                        <Brain className="h-6 w-6 text-primary" />
                       </div>
+                      <button
+                        onClick={() => handleDeleteWorkspace(workspace.id)}
+                        className="p-2 hover:bg-red-50 border-2 border-transparent hover:border-red-200 rounded-lg transition-all"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </button>
                     </div>
-                  </div>
-                  <p className="text-sm text-gray-600 line-clamp-2 font-medium leading-relaxed">
-                    {workspace.description || "No description provided. Click to add datasets and train ML models."}
-                  </p>
-                  <div className="mt-4 pt-4 border-t-2 border-gray-100 flex items-center justify-between">
-                    <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Open Workspace</span>
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                      <span className="text-blue-600 group-hover:text-white font-bold">→</span>
+
+                    <h3 className="text-lg font-bold text-foreground mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+                      {workspace.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2 font-medium">
+                      {workspace.description || "No description provided"}
+                    </p>
+
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4 font-medium">
+                      <Calendar className="h-3.5 w-3.5" />
+                      {new Date(workspace.created_at).toLocaleDateString()}
                     </div>
+
+                    <button
+                      onClick={() => router.push(`/workspace/${workspace.id}`)}
+                      className="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition-all transform group-hover:scale-105"
+                    >
+                      Open Workspace
+                    </button>
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </main>
 
-      {/* Create Workspace Modal - Enhanced */}
-      {createDialogOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
-          <div className="bg-white border-2 border-blue-200 rounded-3xl max-w-md w-full p-8 shadow-2xl" style={{ animation: 'fadeInUp 0.3s ease-out' }}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Plus className="w-6 h-6 text-white" />
-              </div>
-              <h2 className="text-3xl font-extrabold text-gray-900">Create Workspace</h2>
+      {/* Create Workspace Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full border-2 border-border">
+            <div className="p-6 border-b-2 border-border">
+              <h2 className="text-2xl font-bold text-foreground">Create New Workspace</h2>
+              <p className="text-sm text-muted-foreground mt-1 font-medium">Set up a new ML project workspace</p>
             </div>
-            <form onSubmit={handleCreateWorkspace} className="space-y-5">
+            <form onSubmit={handleCreateWorkspace} className="p-6 space-y-5">
               <div>
-                <label htmlFor="name" className="block text-sm font-bold text-gray-900 mb-2">
+                <label className="block text-sm font-bold text-foreground mb-2">
                   Workspace Name *
                 </label>
                 <input
-                  id="name"
                   type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g., Customer Support Bot"
+                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-medium"
                   required
-                  value={newWorkspace.name}
-                  onChange={(e) => setNewWorkspace({ ...newWorkspace, name: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
-                  placeholder="My NLU Project"
+                  autoFocus
                 />
               </div>
               <div>
-                <label htmlFor="description" className="block text-sm font-bold text-gray-900 mb-2">
-                  Description (optional)
+                <label className="block text-sm font-bold text-foreground mb-2">
+                  Description (Optional)
                 </label>
                 <textarea
-                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe your workspace purpose..."
                   rows={3}
-                  value={newWorkspace.description}
-                  onChange={(e) => setNewWorkspace({ ...newWorkspace, description: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-medium"
-                  placeholder="Describe your workspace..."
+                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-medium"
                 />
               </div>
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
-                    setCreateDialogOpen(false);
-                    setNewWorkspace({ name: "", description: "" });
+                    setShowCreateModal(false);
+                    setName("");
+                    setDescription("");
                   }}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
+                  className="flex-1 px-4 py-3 bg-white border-2 border-border text-foreground rounded-xl font-bold hover:bg-gray-50 transition-all"
+                  disabled={creating}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={creating || !newWorkspace.name.trim()}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
+                  disabled={creating}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {creating ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin inline mr-2" />
                       Creating...
                     </>
                   ) : (

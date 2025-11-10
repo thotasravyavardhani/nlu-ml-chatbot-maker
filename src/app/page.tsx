@@ -18,38 +18,50 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Enhanced Parallax Background - Better Positioning */}
+      {/* Enhanced Parallax Background - Properly Contained */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         {/* Soft gradient base */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-purple-50/50 to-pink-50/30" />
         
-        {/* Neural network - top right, better aligned */}
+        {/* Neural network - top right, properly contained */}
         <div 
-          className="absolute -top-20 -right-20 w-[600px] h-[600px] opacity-[0.06]"
+          className="absolute top-0 right-0 w-[500px] h-[500px] opacity-[0.08]"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-technology-background-with-neur-9f595ec8-20251110172318.jpg')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            transform: `translateY(${scrollY * 0.12}px) rotate(15deg)`,
-            borderRadius: '40%',
+            transform: `translateY(${scrollY * 0.12}px)`,
+            borderRadius: '50%',
           }}
         />
 
-        {/* AI brain - bottom left, properly positioned */}
+        {/* AI brain - bottom left, properly contained */}
         <div 
-          className="absolute -bottom-32 -left-20 w-[500px] h-[500px] opacity-[0.05]"
+          className="absolute bottom-0 left-0 w-[450px] h-[450px] opacity-[0.06]"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-artificial-intelligence-brain-n-872b5f5a-20251110172318.jpg')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             transform: `translateY(${scrollY * -0.08}px)`,
-            borderRadius: '40%',
+            borderRadius: '50%',
           }}
         />
 
-        {/* Decorative gradient orbs */}
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/3 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
+        {/* Center decorative element */}
+        <div 
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] opacity-[0.04]"
+          style={{
+            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-ai-and-machine-learning-dashboard-a9b59c52-20251110154558.jpg')`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            transform: `translateY(${scrollY * 0.05}px)`,
+          }}
+        />
+
+        {/* Decorative gradient orbs - contained */}
+        <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl" />
       </div>
 
       {/* Navigation - Enhanced Contrast */}
