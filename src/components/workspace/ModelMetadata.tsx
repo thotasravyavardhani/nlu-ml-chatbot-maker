@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, RefreshCw, Brain, Calendar, Clock, Database, Target } from "lucide-react";
+import { Download, RefreshCw, Brain, Calendar, Clock, Database, Target, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface ModelMetadataProps {
   workspaceId: string;
@@ -16,6 +17,7 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [modelData, setModelData] = useState<any>(null);
   const [retraining, setRetraining] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchModels();
@@ -29,7 +31,13 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
 
   const fetchModels = async () => {
     try {
-      const response = await fetch(`/api/workspaces/${workspaceId}/models`);
+      setLoading(true);
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch(`/api/ml-models?workspaceId=${workspaceId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setModels(data);
@@ -39,12 +47,20 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
       }
     } catch (error) {
       console.error("Failed to fetch models:", error);
+      toast.error("Failed to load models");
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchModelDetails = async () => {
     try {
-      const response = await fetch(`/api/models/${selectedModel}`);
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch(`/api/ml-models/${selectedModel}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setModelData(data);
@@ -56,27 +72,65 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
 
   const handleDownloadModel = async (format: "pickle" | "h5") => {
     if (!selectedModel) return;
-    window.open(`/api/models/${selectedModel}/download?format=${format}`, "_blank");
+    const token = localStorage.getItem("bearer_token");
+    window.open(`/api/ml-models/${selectedModel}/download?format=${format}&token=${token}`, "_blank");
+    toast.success(`Downloading model as ${format.toUpperCase()}...`);
   };
 
   const handleRetrain = async () => {
-    if (!selectedModel) return;
+    if (!selectedModel || !modelData) return;
 
     setRetraining(true);
     try {
-      const response = await fetch(`/api/models/${selectedModel}/retrain`, {
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch("/api/ml-models/train", {
         method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          workspaceId,
+          datasetId: modelData.datasetId,
+          problemType: modelData.problemType || "classification",
+          targetColumn: modelData.targetColumn,
+          algorithms: [modelData.algorithmType],
+        }),
       });
 
       if (response.ok) {
         fetchModelDetails();
+        toast.success("Model retrained successfully!");
+      } else {
+        toast.error("Retraining failed");
       }
     } catch (error) {
       console.error("Failed to retrain model:", error);
+      toast.error("Failed to retrain model");
     } finally {
       setRetraining(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (models.length === 0) {
+    return (
+      <Card className="p-12 text-center">
+        <Brain className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-xl font-semibold mb-2">No models available</h3>
+        <p className="text-muted-foreground">
+          Train a model first to view metadata and download options
+        </p>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -118,7 +172,7 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">{modelData.modelName}</h3>
-                  <p className="text-sm text-muted-foreground capitalize">{modelData.algorithmType.replace("_", " ")}</p>
+                  <p className="text-sm text-muted-foreground capitalize">{modelData.algorithmType.replace(/_/g, " ")}</p>
                 </div>
               </div>
               {modelData.isSelected && (
@@ -221,7 +275,7 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
               >
                 {retraining ? (
                   <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Retraining...
                   </>
                 ) : (

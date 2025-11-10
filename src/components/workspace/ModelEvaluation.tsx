@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, Award, Target, Zap } from "lucide-react";
+import { TrendingUp, Award, Target, Zap, Loader2, BarChart3 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { toast } from "sonner";
 
 interface ModelEvaluationProps {
   workspaceId: string;
@@ -14,7 +15,7 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
   const [models, setModels] = useState<any[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [modelData, setModelData] = useState<any>(null);
-  const [trainingHistory, setTrainingHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchModels();
@@ -23,13 +24,18 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
   useEffect(() => {
     if (selectedModel) {
       fetchModelDetails();
-      fetchTrainingHistory();
     }
   }, [selectedModel]);
 
   const fetchModels = async () => {
     try {
-      const response = await fetch(`/api/workspaces/${workspaceId}/models`);
+      setLoading(true);
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch(`/api/ml-models?workspaceId=${workspaceId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setModels(data);
@@ -39,30 +45,26 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
       }
     } catch (error) {
       console.error("Failed to fetch models:", error);
+      toast.error("Failed to load models");
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchModelDetails = async () => {
     try {
-      const response = await fetch(`/api/models/${selectedModel}`);
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch(`/api/ml-models/${selectedModel}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setModelData(data);
       }
     } catch (error) {
       console.error("Failed to fetch model details:", error);
-    }
-  };
-
-  const fetchTrainingHistory = async () => {
-    try {
-      const response = await fetch(`/api/models/${selectedModel}/history`);
-      if (response.ok) {
-        const data = await response.json();
-        setTrainingHistory(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch training history:", error);
     }
   };
 
@@ -76,6 +78,26 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
     recall: "#f59e0b",
     f1Score: "#8b5cf6",
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (models.length === 0) {
+    return (
+      <Card className="p-12 text-center">
+        <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-xl font-semibold mb-2">No models available</h3>
+        <p className="text-muted-foreground">
+          Train a model first to view evaluation metrics
+        </p>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -181,24 +203,6 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
               </BarChart>
             </ResponsiveContainer>
           </Card>
-
-          {/* Training History */}
-          {trainingHistory.length > 0 && (
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Training History</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={trainingHistory}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="epochNumber" label={{ value: "Epoch", position: "insideBottom", offset: -5 }} />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="accuracyValue" stroke="#10b981" name="Accuracy" strokeWidth={2} />
-                  <Line type="monotone" dataKey="lossValue" stroke="#ef4444" name="Loss" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </Card>
-          )}
 
           {/* Confusion Matrix */}
           {confusionMatrixData && (

@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Save, Trash2, Tag } from "lucide-react";
+import { Plus, Save, Trash2, Tag, Loader2, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface AnnotationToolProps {
   workspaceId: string;
@@ -28,7 +29,8 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
   const [intent, setIntent] = useState("");
   const [entities, setEntities] = useState<Entity[]>([]);
   const [annotations, setAnnotations] = useState<any[]>([]);
-  const [newEntity, setNewEntity] = useState({ type: "", value: "" });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchNLUModels();
@@ -42,7 +44,13 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
 
   const fetchNLUModels = async () => {
     try {
-      const response = await fetch(`/api/workspaces/${workspaceId}/nlu-models`);
+      setLoading(true);
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch(`/api/nlu-models?workspaceId=${workspaceId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setModels(data);
@@ -52,12 +60,19 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
       }
     } catch (error) {
       console.error("Failed to fetch NLU models:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchAnnotations = async () => {
     try {
-      const response = await fetch(`/api/nlu-models/${selectedModel}/annotations`);
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetch(`/api/annotations?nluModelId=${selectedModel}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setAnnotations(data);
@@ -71,7 +86,10 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
     if (!newEntity.type || !newEntity.value) return;
 
     const start = text.indexOf(newEntity.value);
-    if (start === -1) return;
+    if (start === -1) {
+      toast.error("Entity value not found in text");
+      return;
+    }
 
     const entity: Entity = {
       entity: newEntity.type,
@@ -89,14 +107,23 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
   };
 
   const handleSaveAnnotation = async () => {
-    if (!text || !intent) return;
+    if (!text || !intent) {
+      toast.error("Please provide text and intent");
+      return;
+    }
 
+    setSaving(true);
     try {
+      const token = localStorage.getItem("bearer_token");
       const response = await fetch("/api/annotations", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          nluModelId: selectedModel,
+          nluModelId: selectedModel || null,
+          workspaceId,
           text,
           intent,
           entities,
@@ -108,25 +135,47 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
         setIntent("");
         setEntities([]);
         fetchAnnotations();
+        toast.success("Annotation saved successfully!");
+      } else {
+        toast.error("Failed to save annotation");
       }
     } catch (error) {
       console.error("Failed to save annotation:", error);
+      toast.error("Failed to save annotation");
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDeleteAnnotation = async (id: number) => {
     try {
+      const token = localStorage.getItem("bearer_token");
       const response = await fetch(`/api/annotations/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
         fetchAnnotations();
+        toast.success("Annotation deleted");
       }
     } catch (error) {
       console.error("Failed to delete annotation:", error);
+      toast.error("Failed to delete annotation");
     }
   };
+
+  const [newEntity, setNewEntity] = useState({ type: "", value: "" });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -138,23 +187,26 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
       </div>
 
       {/* Model Selection */}
-      <Card className="p-6">
-        <div>
-          <Label>Select NLU Model</Label>
-          <Select value={selectedModel} onValueChange={setSelectedModel}>
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Choose an NLU model" />
-            </SelectTrigger>
-            <SelectContent>
-              {models.map((model) => (
-                <SelectItem key={model.id} value={model.id.toString()}>
-                  {model.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </Card>
+      {models.length > 0 && (
+        <Card className="p-6">
+          <div>
+            <Label>Select NLU Model (Optional)</Label>
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Choose an NLU model or leave unassigned" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Unassigned</SelectItem>
+                {models.map((model) => (
+                  <SelectItem key={model.id} value={model.id.toString()}>
+                    {model.modelName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </Card>
+      )}
 
       {/* Annotation Form */}
       <Card className="p-6">
@@ -216,9 +268,18 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
             </div>
           </div>
 
-          <Button onClick={handleSaveAnnotation} className="w-full">
-            <Save className="w-4 h-4 mr-2" />
-            Save Annotation
+          <Button onClick={handleSaveAnnotation} disabled={saving} className="w-full">
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Save Annotation
+              </>
+            )}
           </Button>
         </div>
       </Card>
@@ -256,8 +317,11 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
           ))}
 
           {annotations.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              No annotations yet. Create your first annotation above.
+            <div className="text-center py-8">
+              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">
+                No annotations yet. Create your first annotation above.
+              </p>
             </div>
           )}
         </div>
