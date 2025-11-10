@@ -34,6 +34,10 @@ export async function POST(request: NextRequest) {
     const rowCount = parsed.data.length;
     const preview = parsed.data.slice(0, 10);
 
+    // Detect file format from file extension
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'csv';
+    const fileFormat = ['csv', 'json', 'yml'].includes(fileExtension) ? fileExtension : 'csv';
+
     const now = new Date().toISOString();
     const [newDataset] = await db.insert(datasets).values({
       workspaceId: parseInt(workspaceId),
@@ -43,6 +47,7 @@ export async function POST(request: NextRequest) {
       rowCount,
       columnCount: columns.length,
       columnsJson: JSON.stringify(columns),
+      fileFormat,
       uploadedAt: now,
       updatedAt: now,
     }).returning();
