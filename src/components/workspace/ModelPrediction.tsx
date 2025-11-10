@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Play, Loader2, CheckCircle2, XCircle, Upload, Brain, TrendingUp, Target, FileJson } from "lucide-react";
+import { Play, Loader2, Upload, Brain, Target, FileJson, Server, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -27,9 +27,12 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
   const [predicting, setPredicting] = useState(false);
   const [predictions, setPredictions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [backendStatus, setBackendStatus] = useState<any>(null);
+  const [lastBackend, setLastBackend] = useState<string>("");
 
   useEffect(() => {
     fetchModels();
+    checkBackendStatus();
   }, [workspaceId]);
 
   useEffect(() => {
@@ -38,6 +41,18 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
       initializeSingleInput();
     }
   }, [selectedModel]);
+
+  const checkBackendStatus = async () => {
+    try {
+      const response = await fetch("/api/backend-status");
+      if (response.ok) {
+        const data = await response.json();
+        setBackendStatus(data);
+      }
+    } catch (error) {
+      console.error("Failed to check backend status:", error);
+    }
+  };
 
   const fetchModels = async () => {
     try {
@@ -131,7 +146,14 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
       if (response.ok) {
         const data = await response.json();
         setPredictions(data.predictions);
+        setLastBackend(data.backend || 'simulation');
         toast.success("Prediction completed successfully!");
+        
+        if (data.backend === 'python') {
+          console.log('✅ Using Python ML Backend');
+        } else {
+          console.log('⚠️ Using Simulation Mode');
+        }
       } else {
         const error = await response.json();
         toast.error(error.error || "Prediction failed");
@@ -186,7 +208,14 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
       if (response.ok) {
         const data = await response.json();
         setPredictions(data.predictions);
+        setLastBackend(data.backend || 'simulation');
         toast.success(`Successfully predicted ${data.predictions.length} samples!`);
+        
+        if (data.backend === 'python') {
+          console.log('✅ Using Python ML Backend');
+        } else {
+          console.log('⚠️ Using Simulation Mode');
+        }
       } else {
         const error = await response.json();
         toast.error(error.error || "Prediction failed");
@@ -232,6 +261,28 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
           Test trained models with new data and get real-time predictions
         </p>
       </div>
+
+      {/* Backend Status */}
+      {backendStatus && (
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Server className="w-4 h-4" />
+            <span className="font-semibold text-sm">Python ML Backend Status</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <div className={`w-2 h-2 rounded-full ${backendStatus.mlService.available ? 'bg-green-500' : 'bg-yellow-500'}`} />
+            <span>ML Service: {backendStatus.mlService.available ? 'Connected' : 'Simulation Mode'}</span>
+          </div>
+          {!backendStatus.mlService.available && (
+            <div className="mt-3 p-2 bg-yellow-500/10 rounded flex items-start gap-2 text-xs">
+              <AlertCircle className="w-3 h-3 text-yellow-500 mt-0.5 flex-shrink-0" />
+              <span className="text-yellow-700 dark:text-yellow-300">
+                Python ML backend not connected. Using simulation mode. See <code className="px-1 bg-background rounded">PYTHON_BACKEND_SETUP.md</code> to set up real Python ML service.
+              </span>
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Model Selection */}
       <Card className="p-6">
@@ -392,7 +443,14 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
       {predictions.length > 0 && (
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Prediction Results ({predictions.length})</h3>
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold">Prediction Results ({predictions.length})</h3>
+              {lastBackend && (
+                <Badge variant={lastBackend === 'python' ? 'default' : 'secondary'}>
+                  {lastBackend === 'python' ? 'Python ML' : 'Simulation'}
+                </Badge>
+              )}
+            </div>
             <Button variant="outline" size="sm" onClick={exportPredictions}>
               <Upload className="w-4 h-4 mr-2" />
               Export JSON
