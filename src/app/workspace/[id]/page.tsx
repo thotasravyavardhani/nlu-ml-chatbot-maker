@@ -108,30 +108,36 @@ export default function WorkspacePage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Parallax Background */}
+      {/* Parallax Background - Properly Contained */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50/30 to-pink-50/20" />
         
+        {/* Top illustration - properly positioned */}
         <div 
-          className="absolute inset-0 opacity-10"
+          className="absolute top-10 right-10 w-[400px] h-[300px] opacity-[0.05]"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-technology-background-with-neur-9f595ec8-20251110172318.jpg')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             transform: `translateY(${scrollY * 0.1}px)`,
+            borderRadius: '40%',
           }}
         />
 
+        {/* Bottom illustration - properly positioned */}
         <div 
-          className="absolute top-0 right-0 w-1/2 h-full opacity-8"
+          className="absolute bottom-10 left-10 w-[350px] h-[280px] opacity-[0.04]"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/minimalist-data-science-workspace-illust-05e224b6-20251110172317.jpg')`,
             backgroundSize: 'contain',
-            backgroundPosition: 'right center',
+            backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             transform: `translateY(${scrollY * 0.05}px)`,
           }}
         />
+
+        {/* Center gradient orb */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
       {/* Header */}
