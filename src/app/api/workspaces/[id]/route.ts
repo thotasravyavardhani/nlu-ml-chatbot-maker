@@ -62,7 +62,7 @@ export async function GET(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, parseInt(user.id))
+          eq(workspaces.userId, user.id)
         )
       )
       .limit(1);
@@ -121,7 +121,7 @@ export async function PUT(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, parseInt(user.id))
+          eq(workspaces.userId, user.id)
         )
       )
       .limit(1);
@@ -160,7 +160,7 @@ export async function PUT(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, parseInt(user.id))
+          eq(workspaces.userId, user.id)
         )
       )
       .returning();
@@ -209,7 +209,7 @@ export async function DELETE(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, parseInt(user.id))
+          eq(workspaces.userId, user.id)
         )
       )
       .limit(1);
@@ -225,7 +225,7 @@ export async function DELETE(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, parseInt(user.id))
+          eq(workspaces.userId, user.id)
         )
       )
       .returning();
