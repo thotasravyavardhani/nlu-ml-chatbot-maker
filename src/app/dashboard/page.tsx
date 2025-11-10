@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Brain, Plus, Trash2, Calendar, FolderOpen, Loader2, LogOut, Sparkles, TrendingUp, BarChart3 } from "lucide-react";
+import Image from "next/image";
+import { Brain, Plus, Trash2, Calendar, FolderOpen, Loader2, LogOut, Sparkles, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 interface Workspace {
@@ -22,7 +23,6 @@ export default function Dashboard() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [creating, setCreating] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     if (!isPending && !session?.user) {
@@ -35,12 +35,6 @@ export default function Dashboard() {
       fetchWorkspaces();
     }
   }, [session]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const fetchWorkspaces = async () => {
     try {
@@ -151,52 +145,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Professional Background - Properly Positioned */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-purple-50/40 to-pink-50/20" />
-        
-        {/* Top right illustration - contained */}
-        <div 
-          className="absolute top-20 right-10 w-[450px] h-[350px] opacity-[0.06]"
-          style={{
-            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/minimalist-data-science-workspace-illust-05e224b6-20251110172317.jpg')`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            transform: `translateY(${scrollY * 0.1}px)`,
-          }}
-        />
-
-        {/* Bottom left illustration - contained */}
-        <div 
-          className="absolute bottom-20 left-10 w-[400px] h-[300px] opacity-[0.05]"
-          style={{
-            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/workspace-and-project-management-illustr-f847cbbe-20251110154558.jpg')`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            transform: `translateY(${scrollY * -0.08}px)`,
-          }}
-        />
-
-        {/* Center subtle pattern */}
-        <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] opacity-[0.03]"
-          style={{
-            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-technology-background-with-neur-9f595ec8-20251110172318.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            borderRadius: '50%',
-          }}
-        />
-
-        {/* Gradient orbs - properly positioned */}
-        <div className="absolute top-1/3 right-1/3 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-purple-400/10 rounded-full blur-3xl" />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50/30 to-pink-50/20">
       {/* Navigation */}
       <nav className="border-b-2 border-border bg-white/90 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -226,43 +175,54 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section with Stats */}
+        {/* Welcome Section with Image */}
         <div className="mb-8">
-          <div className="bg-white/90 backdrop-blur-sm border-2 border-border rounded-2xl p-8 shadow-lg">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border-2 border-blue-200 rounded-full mb-3">
+          <div className="bg-white border-2 border-border rounded-2xl overflow-hidden shadow-lg">
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
+              {/* Left: Content */}
+              <div className="p-8">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border-2 border-blue-200 rounded-full mb-4">
                   <Sparkles className="w-4 h-4 text-blue-600" />
                   <span className="text-xs font-bold text-blue-700">AI-Powered Platform</span>
                 </div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-2">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-3">
                   Welcome back, {session.user.name?.split(" ")[0]}! 👋
                 </h1>
-                <p className="text-lg text-muted-foreground font-medium">
+                <p className="text-lg text-muted-foreground font-medium mb-6">
                   Manage your ML workspaces and build intelligent chatbots
                 </p>
+                
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4 text-center">
+                    <div className="flex justify-center mb-2">
+                      <div className="p-2 bg-white rounded-lg shadow-sm">
+                        <FolderOpen className="w-5 h-5 text-blue-600" />
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{workspaces.length}</p>
+                    <p className="text-xs text-muted-foreground font-semibold">Workspaces</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-4 text-center">
+                    <div className="flex justify-center mb-2">
+                      <div className="p-2 bg-white rounded-lg shadow-sm">
+                        <TrendingUp className="w-5 h-5 text-purple-600" />
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">Active</p>
+                    <p className="text-xs text-muted-foreground font-semibold">Status</p>
+                  </div>
+                </div>
               </div>
               
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4 text-center">
-                  <div className="flex justify-center mb-2">
-                    <div className="p-2 bg-white rounded-lg shadow-sm">
-                      <FolderOpen className="w-5 h-5 text-blue-600" />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">{workspaces.length}</p>
-                  <p className="text-xs text-muted-foreground font-semibold">Workspaces</p>
-                </div>
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-4 text-center">
-                  <div className="flex justify-center mb-2">
-                    <div className="p-2 bg-white rounded-lg shadow-sm">
-                      <TrendingUp className="w-5 h-5 text-purple-600" />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">Active</p>
-                  <p className="text-xs text-muted-foreground font-semibold">Status</p>
-                </div>
+              {/* Right: Image */}
+              <div className="hidden lg:block relative h-full min-h-[300px]">
+                <Image
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-professional-workspace-organizati-d537ca5e-20251110175142.jpg"
+                  alt="Workspace Management"
+                  fill
+                  className="object-cover"
+                />
               </div>
             </div>
           </div>
@@ -285,10 +245,16 @@ export default function Dashboard() {
           </div>
 
           {workspaces.length === 0 ? (
-            <div className="bg-white/90 backdrop-blur-sm border-2 border-dashed border-border rounded-2xl p-12 text-center shadow-lg">
+            <div className="bg-white border-2 border-dashed border-border rounded-2xl p-12 text-center shadow-lg">
               <div className="max-w-md mx-auto">
-                <div className="inline-flex p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl mb-4">
-                  <Brain className="h-12 w-12 text-primary" />
+                <div className="mb-6">
+                  <Image
+                    src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/minimalist-data-science-workspace-illust-05e224b6-20251110172317.jpg"
+                    alt="Create Workspace"
+                    width={300}
+                    height={200}
+                    className="mx-auto rounded-xl"
+                  />
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-2">No workspaces yet</h3>
                 <p className="text-muted-foreground mb-6 font-medium">
@@ -308,7 +274,7 @@ export default function Dashboard() {
               {workspaces.map((workspace) => (
                 <div
                   key={workspace.id}
-                  className="bg-white/90 backdrop-blur-sm border-2 border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300 group hover:-translate-y-1 shadow-lg"
+                  className="bg-white border-2 border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300 group hover:-translate-y-1 shadow-lg"
                 >
                   {/* Card Header with Gradient */}
                   <div className="h-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600" />
