@@ -23,6 +23,12 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Add allowed dev origins for published app
+  allowedDevOrigins: [
+    'www.orchids.app',
+    '*.orchids.app',
+    '*.proxy.daytona.works',
+  ],
   turbopack: {
     rules: {
       "*.{jsx,tsx}": {
