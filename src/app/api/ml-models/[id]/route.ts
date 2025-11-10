@@ -66,7 +66,7 @@ async function verifyModelAccess(modelId: number, userId: string) {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = await authenticateRequest(request);
@@ -77,7 +77,8 @@ export async function GET(
       );
     }
 
-    const modelId = parseInt(params.id);
+    const { id } = await params;
+    const modelId = parseInt(id);
     if (isNaN(modelId)) {
       return NextResponse.json(
         { error: 'Valid model ID is required', code: 'INVALID_ID' },
@@ -106,7 +107,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = await authenticateRequest(request);
@@ -117,7 +118,8 @@ export async function PUT(
       );
     }
 
-    const modelId = parseInt(params.id);
+    const { id } = await params;
+    const modelId = parseInt(id);
     if (isNaN(modelId)) {
       return NextResponse.json(
         { error: 'Valid model ID is required', code: 'INVALID_ID' },
@@ -202,7 +204,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = await authenticateRequest(request);
@@ -213,7 +215,8 @@ export async function DELETE(
       );
     }
 
-    const modelId = parseInt(params.id);
+    const { id } = await params;
+    const modelId = parseInt(id);
     if (isNaN(modelId)) {
       return NextResponse.json(
         { error: 'Valid model ID is required', code: 'INVALID_ID' },
