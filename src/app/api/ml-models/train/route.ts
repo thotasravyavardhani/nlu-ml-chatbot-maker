@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { workspaceId, datasetId, problemType, targetColumn, algorithms } = body;
+    const { workspaceId, datasetId, problemType, targetColumn, algorithms, pythonResults } = body;
 
     // Validate required fields
     if (!workspaceId) {
@@ -131,42 +131,15 @@ export async function POST(request: NextRequest) {
 
     const datasetRecord = dataset[0];
     
-    // Try to call Python ML service if available
-    const pythonServiceUrl = process.env.PYTHON_ML_SERVICE_URL;
+    // Use Python results if provided, otherwise generate simulation results
     let results = [];
     let usePythonBackend = false;
 
-    if (pythonServiceUrl) {
-      try {
-        // Call Python ML service
-        const pythonResponse = await fetch(`${pythonServiceUrl}/train`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            dataset_path: datasetRecord.filePath,
-            file_format: datasetRecord.fileFormat || 'csv',
-            problem_type: problemType,
-            target_column: targetColumn,
-            algorithms: algorithms,
-            workspace_id: workspaceId,
-          }),
-        });
-
-        if (pythonResponse.ok) {
-          const pythonData = await pythonResponse.json();
-          results = pythonData.results;
-          usePythonBackend = true;
-          console.log('✅ Using Python ML Backend');
-        } else {
-          console.warn('Python ML service unavailable, using simulation mode');
-        }
-      } catch (error) {
-        console.warn('Python ML service error, using simulation mode:', error);
-      }
-    }
-
-    // Fallback to simulation if Python backend not available
-    if (!usePythonBackend) {
+    if (pythonResults && Array.isArray(pythonResults) && pythonResults.length > 0) {
+      results = pythonResults;
+      usePythonBackend = true;
+      console.log('✅ Using Python ML Backend results');
+    } else {
       console.log('⚠️ Using Simulation Mode (Python backend not connected)');
       // Simulation fallback
       for (const algorithmId of algorithms) {
@@ -240,7 +213,8 @@ export async function POST(request: NextRequest) {
         modelData.precisionScore = result.precision;
         modelData.recallScore = result.recall;
         modelData.f1Score = result.f1Score;
-        modelData.confusionMatrixJson = result.confusionMatrix;
+        // Store confusion matrix as JSON string to avoid parsing errors
+        modelData.confusionMatrixJson = JSON.stringify(result.confusionMatrix);
       }
 
       const [savedModel] = await db.insert(mlModels).values(modelData).returning();
