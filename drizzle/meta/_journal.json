@@ -8,6 +8,13 @@
       "when": 1762789519617,
       "tag": "0000_fixed_white_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1762789587058,
+      "tag": "0001_square_wrecking_crew",
+      "breakpoints": true
     }
   ]
 }
