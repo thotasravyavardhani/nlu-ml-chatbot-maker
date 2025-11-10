@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Try Python Rasa service
-    const rasaServiceUrl = process.env.PYTHON_RASA_SERVICE_URL;
+    const rasaServiceUrl = process.env.RASA_SERVICE_URL;
     let usePythonBackend = false;
     let modelPath = `/models/rasa/simulated_${Date.now()}`;
 
