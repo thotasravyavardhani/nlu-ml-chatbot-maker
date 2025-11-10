@@ -53,7 +53,8 @@ async function verifyWorkspaceOwnership(nluModelId: number, userId: string): Pro
       return { authorized: false, modelExists: false };
     }
     
-    const authorized = result[0].workspaceUserId === parseInt(userId);
+    // Fix: userId from better-auth is a string, workspaceUserId is text in schema
+    const authorized = result[0].workspaceUserId === userId;
     return { authorized, modelExists: true };
   } catch (error) {
     console.error('Workspace verification error:', error);
@@ -163,12 +164,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // Validate required fields
-    const { nluModelId, text, intent, entitiesJson } = body;
+    const { nluModelId, workspaceId, text, intent, entities } = body;
     
-    if (!nluModelId) {
+    // Allow annotations without nluModelId (unassigned)
+    if (!workspaceId) {
       return NextResponse.json({ 
-        error: 'nluModelId is required',
-        code: 'MISSING_NLU_MODEL_ID' 
+        error: 'workspaceId is required',
+        code: 'MISSING_WORKSPACE_ID' 
       }, { status: 400 });
     }
     
@@ -178,35 +180,67 @@ export async function POST(request: NextRequest) {
         code: 'MISSING_TEXT' 
       }, { status: 400 });
     }
-    
-    const parsedNluModelId = parseInt(nluModelId);
-    if (isNaN(parsedNluModelId)) {
+
+    if (!intent || typeof intent !== 'string' || intent.trim().length === 0) {
       return NextResponse.json({ 
-        error: 'Valid nluModelId is required',
-        code: 'INVALID_NLU_MODEL_ID' 
+        error: 'intent is required and must be a non-empty string',
+        code: 'MISSING_INTENT' 
       }, { status: 400 });
     }
     
-    // Verify workspace ownership
-    const { authorized, modelExists } = await verifyWorkspaceOwnership(parsedNluModelId, userId);
-    
-    if (!modelExists) {
+    const parsedWorkspaceId = parseInt(workspaceId);
+    if (isNaN(parsedWorkspaceId)) {
       return NextResponse.json({ 
-        error: 'NLU model not found',
-        code: 'MODEL_NOT_FOUND' 
+        error: 'Valid workspaceId is required',
+        code: 'INVALID_WORKSPACE_ID' 
+      }, { status: 400 });
+    }
+
+    // Verify workspace ownership
+    const workspace = await db.select()
+      .from(workspaces)
+      .where(
+        and(
+          eq(workspaces.id, parsedWorkspaceId),
+          eq(workspaces.userId, userId)
+        )
+      )
+      .limit(1);
+
+    if (workspace.length === 0) {
+      return NextResponse.json({ 
+        error: 'Workspace not found or access denied',
+        code: 'WORKSPACE_NOT_FOUND' 
       }, { status: 404 });
     }
     
-    if (!authorized) {
-      return NextResponse.json({ 
-        error: 'You do not have permission to create annotations for this model',
-        code: 'FORBIDDEN' 
-      }, { status: 403 });
+    // If nluModelId provided, verify it belongs to this workspace
+    let parsedNluModelId = null;
+    if (nluModelId) {
+      parsedNluModelId = parseInt(nluModelId);
+      if (!isNaN(parsedNluModelId)) {
+        const nluModel = await db.select()
+          .from(nluModels)
+          .where(
+            and(
+              eq(nluModels.id, parsedNluModelId),
+              eq(nluModels.workspaceId, parsedWorkspaceId)
+            )
+          )
+          .limit(1);
+
+        if (nluModel.length === 0) {
+          return NextResponse.json({ 
+            error: 'NLU model not found in this workspace',
+            code: 'MODEL_NOT_FOUND' 
+          }, { status: 404 });
+        }
+      }
     }
     
     // Prepare annotation data
     const annotationData: {
-      nluModelId: number;
+      nluModelId: number | null;
       text: string;
       intent: string | null;
       entitiesJson: any;
@@ -215,8 +249,8 @@ export async function POST(request: NextRequest) {
     } = {
       nluModelId: parsedNluModelId,
       text: text.trim(),
-      intent: intent && typeof intent === 'string' ? intent.trim() : null,
-      entitiesJson: entitiesJson || null,
+      intent: intent.trim(),
+      entitiesJson: entities || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
