@@ -1,51 +1,88 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Brain, Database, Zap, BarChart3, MessageSquare, Download, Settings, CheckCircle } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
+import { Brain, Upload, Cpu, LineChart, MessageSquare, Tag, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default function Home() {
+  const { data: session } = useSession();
+
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-6">
-                AI-Powered NLU + ML Platform
-              </div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                Build Intelligent Chatbots with
-                <span className="text-primary"> Advanced NLU</span>
-              </h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                Train multiple ML models simultaneously, annotate data, and deploy production-ready chatbots powered by RASA and cutting-edge machine learning algorithms.
-              </p>
-              <div className="flex gap-4">
-                <Link href="/register">
-                  <Button size="lg" className="text-lg px-8">
-                    Start Building Free
-                  </Button>
+      {/* Navigation */}
+      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2">
+              <Brain className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold text-foreground">NLU ML Platform</span>
+            </div>
+            <div className="flex items-center gap-4">
+              {session?.user ? (
+                <Link
+                  href="/dashboard"
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                >
+                  Go to Dashboard
                 </Link>
-                <Link href="#how-it-works">
-                  <Button size="lg" variant="outline" className="text-lg px-8">
-                    Learn More
-                  </Button>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-foreground hover:text-primary transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-20 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+                Build Intelligent{" "}
+                <span className="text-primary">NLU + ML</span>{" "}
+                Chatbots
+              </h1>
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                Create, train, and deploy powerful Natural Language Understanding chatbots with advanced Machine Learning algorithms. All in one platform.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href={session?.user ? "/dashboard" : "/register"}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                >
+                  {session?.user ? "Go to Dashboard" : "Start Building"}
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+                <Link
+                  href="#features"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border rounded-lg font-medium hover:bg-accent transition-colors"
+                >
+                  Learn More
                 </Link>
               </div>
             </div>
             <div className="relative">
               <Image
-                src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-futuristic-ai-neural-network-visu-645e3cbf-20251110154251.jpg"
-                alt="AI Neural Network"
+                src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-ai-and-machine-learning-dashboard-a9b59c52-20251110154558.jpg"
+                alt="NLU ML Platform Dashboard"
                 width={800}
                 height={600}
-                className="rounded-2xl shadow-2xl"
+                className="rounded-xl shadow-2xl"
                 priority
               />
             </div>
@@ -54,207 +91,307 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 bg-muted/30">
-        <div className="container mx-auto">
+      <section id="features" className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Powerful Features</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              Powerful Features for AI Development
+            </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to build, train, and deploy intelligent conversational AI
+              Everything you need to build, train, and deploy intelligent chatbots with state-of-the-art ML algorithms.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="p-6 hover:shadow-lg transition">
-              <Database className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Dataset Management</h3>
+            {/* Feature 1: Workspace Management */}
+            <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="mb-4">
+                <Image
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/workspace-and-project-management-illustr-f847cbbe-20251110154558.jpg"
+                  alt="Workspace Management"
+                  width={400}
+                  height={300}
+                  className="rounded-lg w-full h-48 object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Brain className="h-5 w-5 text-primary" />
+                Workspace Management
+              </h3>
               <p className="text-muted-foreground">
-                Upload, view, and manage large CSV datasets with column selection and data preprocessing capabilities.
+                Organize your projects with dedicated workspaces. Manage multiple chatbots and datasets efficiently.
               </p>
-            </Card>
+            </div>
 
-            <Card className="p-6 hover:shadow-lg transition">
-              <Zap className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Multi-Algorithm Training</h3>
+            {/* Feature 2: Dataset Upload */}
+            <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="mb-4">
+                <Image
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/professional-illustration-of-dataset-upl-52b41147-20251110154558.jpg"
+                  alt="Dataset Upload"
+                  width={400}
+                  height={300}
+                  className="rounded-lg w-full h-48 object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Upload className="h-5 w-5 text-primary" />
+                Smart Dataset Management
+              </h3>
               <p className="text-muted-foreground">
-                Train 5-6 ML algorithms simultaneously including Random Forest, XGBoost, SVM, and more. Auto-select the best model.
+                Upload CSV datasets, preview data, select columns, and prepare your training data with ease.
               </p>
-            </Card>
+            </div>
 
-            <Card className="p-6 hover:shadow-lg transition">
-              <BarChart3 className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Model Evaluation</h3>
+            {/* Feature 3: ML Training */}
+            <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="mb-4">
+                <Image
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/machine-learning-model-training-visualiz-ab0f39a7-20251110154558.jpg"
+                  alt="ML Training"
+                  width={400}
+                  height={300}
+                  className="rounded-lg w-full h-48 object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Cpu className="h-5 w-5 text-primary" />
+                Multiple ML Algorithms
+              </h3>
               <p className="text-muted-foreground">
-                Comprehensive metrics including accuracy, precision, recall, F1-score, confusion matrices, and training graphs.
+                Train with Random Forest, SVM, Logistic Regression, Decision Tree, KNN, and XGBoost. Auto-select the best model.
               </p>
-            </Card>
+            </div>
 
-            <Card className="p-6 hover:shadow-lg transition">
-              <MessageSquare className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">RASA NLU Integration</h3>
+            {/* Feature 4: Model Evaluation */}
+            <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <h3 className="text-xl font-semibold text-foreground mb-2 flex items-center gap-2">
+                <LineChart className="h-5 w-5 text-primary" />
+                Advanced Model Evaluation
+              </h3>
               <p className="text-muted-foreground">
-                Built-in RASA support for intent recognition, entity extraction, and natural language understanding.
+                Comprehensive metrics including accuracy, precision, recall, F1-score, and confusion matrix visualizations.
               </p>
-            </Card>
+            </div>
 
-            <Card className="p-6 hover:shadow-lg transition">
-              <Brain className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">NLU Annotation Tool</h3>
+            {/* Feature 5: NLU Chatbot */}
+            <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="mb-4">
+                <Image
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/ai-chatbot-and-nlu-training-interface-il-fb6e291f-20251110154559.jpg"
+                  alt="NLU Chatbot"
+                  width={400}
+                  height={300}
+                  className="rounded-lg w-full h-48 object-cover"
+                />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2 flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                RASA-Powered Chatbots
+              </h3>
               <p className="text-muted-foreground">
-                Annotate training data with intents and entities using an intuitive interface for better model performance.
+                Build conversational AI with RASA integration. Train and test your NLU models in real-time.
               </p>
-            </Card>
+            </div>
 
-            <Card className="p-6 hover:shadow-lg transition">
-              <Download className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Model Export & Retrain</h3>
+            {/* Feature 6: Annotation Tool */}
+            <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <h3 className="text-xl font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Tag className="h-5 w-5 text-primary" />
+                NLU Annotation Tool
+              </h3>
               <p className="text-muted-foreground">
-                Download trained models as pickle or H5 files. Easily retrain with new data to improve accuracy.
+                Label intents and entities with an intuitive annotation interface. Improve your chatbot's understanding.
               </p>
-            </Card>
+            </div>
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 px-4">
-        <div className="container mx-auto">
+      <section className="py-20 bg-gradient-to-br from-accent/5 via-background to-primary/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              How It Works
+            </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              From data to deployment in four simple steps
+              Get started in minutes with our streamlined workflow
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-            <div className="relative">
-              <Image
-                src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-data-science-visualization-show-84e3f64b-20251110154250.jpg"
-                alt="Data Science Visualization"
-                width={600}
-                height={400}
-                className="rounded-xl shadow-xl"
-              />
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
+                <span className="text-2xl font-bold">1</span>
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Create Workspace</h3>
+              <p className="text-muted-foreground">
+                Sign up and create your first workspace to organize your projects
+              </p>
             </div>
 
-            <div className="space-y-8">
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
-                  1
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Create Workspace</h3>
-                  <p className="text-muted-foreground">
-                    Start by creating a new workspace for your project. Add a name and description to organize your chatbot development.
-                  </p>
-                </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
+                <span className="text-2xl font-bold">2</span>
               </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Upload Dataset</h3>
+              <p className="text-muted-foreground">
+                Upload your CSV dataset and preview the data structure
+              </p>
+            </div>
 
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
-                  2
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Upload Dataset</h3>
-                  <p className="text-muted-foreground">
-                    Upload your CSV dataset. View, analyze, and select target columns for training. Our platform handles large datasets efficiently.
-                  </p>
-                </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
+                <span className="text-2xl font-bold">3</span>
               </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Train Models</h3>
+              <p className="text-muted-foreground">
+                Run multiple ML algorithms and automatically select the best performer
+              </p>
+            </div>
 
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
-                  3
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Train Models</h3>
-                  <p className="text-muted-foreground">
-                    Train multiple ML algorithms simultaneously. The system automatically selects the best performing model based on accuracy metrics.
-                  </p>
-                </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
+                <span className="text-2xl font-bold">4</span>
               </div>
-
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
-                  4
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Deploy & Test</h3>
-                  <p className="text-muted-foreground">
-                    Test your chatbot with the integrated NLU interface. Export models, retrain as needed, and deploy to production.
-                  </p>
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Deploy & Test</h3>
+              <p className="text-muted-foreground">
+                Deploy your chatbot and test with real conversations
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Workspace Preview */}
-      <section className="py-20 px-4 bg-muted/30">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Professional Workspace</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              A complete development environment for your NLU and ML projects
-            </p>
-          </div>
-
-          <div className="max-w-6xl mx-auto">
-            <Image
-              src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/machine-learning-workspace-dashboard-moc-f1d7f9da-20251110154249.jpg"
-              alt="Workspace Dashboard"
-              width={1200}
-              height={600}
-              className="rounded-2xl shadow-2xl border border-border"
-            />
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h4 className="font-semibold mb-1">Real-time Metrics</h4>
-                <p className="text-sm text-muted-foreground">Monitor training progress and model performance in real-time</p>
+      {/* Benefits Section */}
+      <section className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
+                Why Choose Our Platform?
+              </h2>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">6+ ML Algorithms</h3>
+                    <p className="text-muted-foreground">Compare and select the best performing model automatically</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">RASA Integration</h3>
+                    <p className="text-muted-foreground">Industry-standard NLU framework for conversational AI</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Model Export</h3>
+                    <p className="text-muted-foreground">Download trained models as .pickle or .h5 files for deployment</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Comprehensive Metrics</h3>
+                    <p className="text-muted-foreground">Track accuracy, precision, recall, F1-score, and confusion matrices</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Annotation Tools</h3>
+                    <p className="text-muted-foreground">Label intents and entities to improve chatbot understanding</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">Retraining Support</h3>
+                    <p className="text-muted-foreground">Continuously improve your models with new data</p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h4 className="font-semibold mb-1">Interactive Charts</h4>
-                <p className="text-sm text-muted-foreground">Visualize confusion matrices, ROC curves, and training history</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-              <div>
-                <h4 className="font-semibold mb-1">Multi-Workspace</h4>
-                <p className="text-sm text-muted-foreground">Manage multiple projects with isolated environments</p>
-              </div>
+            <div className="relative">
+              <Image
+                src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/machine-learning-model-training-visualiz-ab0f39a7-20251110154558.jpg"
+                alt="Platform Benefits"
+                width={600}
+                height={500}
+                className="rounded-xl shadow-xl"
+              />
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto">
-          <div className="bg-gradient-to-r from-primary to-primary/80 rounded-3xl p-12 md:p-16 text-center text-primary-foreground">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Ready to Build Your Chatbot?
-            </h2>
-            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              Join developers who are building the next generation of intelligent conversational AI
-            </p>
-            <Link href="/register">
-              <Button size="lg" variant="secondary" className="text-lg px-8">
-                Get Started Now - It's Free
-              </Button>
-            </Link>
-          </div>
+      <section className="py-20 bg-gradient-to-r from-primary to-primary/80">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-primary-foreground mb-4">
+            Ready to Build Your AI Chatbot?
+          </h2>
+          <p className="text-xl text-primary-foreground/90 mb-8">
+            Join developers and teams using our platform to create intelligent conversational experiences.
+          </p>
+          <Link
+            href={session?.user ? "/dashboard" : "/register"}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-background text-foreground rounded-lg font-medium hover:bg-background/90 transition-colors shadow-lg"
+          >
+            {session?.user ? "Go to Dashboard" : "Get Started Free"}
+            <ArrowRight className="h-5 w-5" />
+          </Link>
         </div>
       </section>
 
-      <Footer />
+      {/* Footer */}
+      <footer className="bg-card border-t border-border py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Brain className="h-6 w-6 text-primary" />
+                <span className="font-bold text-foreground">NLU ML Platform</span>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Build intelligent NLU chatbots with advanced Machine Learning
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Product</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="#features" className="hover:text-primary transition-colors">Features</Link></li>
+                <li><Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
+                <li><Link href="#" className="hover:text-primary transition-colors">Pricing</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Resources</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="#" className="hover:text-primary transition-colors">Documentation</Link></li>
+                <li><Link href="#" className="hover:text-primary transition-colors">API Reference</Link></li>
+                <li><Link href="#" className="hover:text-primary transition-colors">Help Center</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Company</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="#" className="hover:text-primary transition-colors">About</Link></li>
+                <li><Link href="#" className="hover:text-primary transition-colors">Blog</Link></li>
+                <li><Link href="#" className="hover:text-primary transition-colors">Contact</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+            <p>&copy; 2024 NLU ML Platform. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
