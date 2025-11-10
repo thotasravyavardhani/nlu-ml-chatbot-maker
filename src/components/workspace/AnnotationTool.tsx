@@ -31,6 +31,7 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
   const [annotations, setAnnotations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [newEntity, setNewEntity] = useState({ type: "", value: "" });
 
   useEffect(() => {
     fetchNLUModels();
@@ -83,7 +84,10 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
   };
 
   const handleAddEntity = () => {
-    if (!newEntity.type || !newEntity.value) return;
+    if (!newEntity.type || !newEntity.value) {
+      toast.error("Please provide entity type and value");
+      return;
+    }
 
     const start = text.indexOf(newEntity.value);
     if (start === -1) {
@@ -100,10 +104,12 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
 
     setEntities([...entities, entity]);
     setNewEntity({ type: "", value: "" });
+    toast.success("Entity added");
   };
 
   const handleRemoveEntity = (index: number) => {
     setEntities(entities.filter((_, i) => i !== index));
+    toast.success("Entity removed");
   };
 
   const handleSaveAnnotation = async () => {
@@ -137,7 +143,8 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
         fetchAnnotations();
         toast.success("Annotation saved successfully!");
       } else {
-        toast.error("Failed to save annotation");
+        const error = await response.json();
+        toast.error(error.error || "Failed to save annotation");
       }
     } catch (error) {
       console.error("Failed to save annotation:", error);
@@ -160,6 +167,8 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
       if (response.ok) {
         fetchAnnotations();
         toast.success("Annotation deleted");
+      } else {
+        toast.error("Failed to delete annotation");
       }
     } catch (error) {
       console.error("Failed to delete annotation:", error);
@@ -167,7 +176,16 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
     }
   };
 
-  const [newEntity, setNewEntity] = useState({ type: "", value: "" });
+  // Fix: Safely parse entitiesJson - handle both string and already-parsed array
+  const parseEntities = (entitiesJson: any): Entity[] => {
+    if (!entitiesJson) return [];
+    if (Array.isArray(entitiesJson)) return entitiesJson;
+    try {
+      return JSON.parse(entitiesJson);
+    } catch {
+      return [];
+    }
+  };
 
   if (loading) {
     return (
@@ -288,33 +306,36 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Existing Annotations ({annotations.length})</h3>
         <div className="space-y-3">
-          {annotations.map((annotation) => (
-            <div key={annotation.id} className="p-4 border border-border rounded-lg">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-primary" />
-                  <Badge variant="outline">{annotation.intent}</Badge>
+          {annotations.map((annotation) => {
+            const annotationEntities = parseEntities(annotation.entitiesJson);
+            return (
+              <div key={annotation.id} className="p-4 border border-border rounded-lg">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-primary" />
+                    <Badge variant="outline">{annotation.intent}</Badge>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteAnnotation(annotation.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeleteAnnotation(annotation.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <p className="text-sm mb-2">{annotation.text}</p>
+                {annotationEntities.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {annotationEntities.map((entity: Entity, idx: number) => (
+                      <Badge key={idx} variant="secondary">
+                        {entity.entity}: {entity.value}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
-              <p className="text-sm mb-2">{annotation.text}</p>
-              {annotation.entitiesJson && JSON.parse(annotation.entitiesJson).length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {JSON.parse(annotation.entitiesJson).map((entity: Entity, idx: number) => (
-                    <Badge key={idx} variant="secondary">
-                      {entity.entity}: {entity.value}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
 
           {annotations.length === 0 && (
             <div className="text-center py-8">

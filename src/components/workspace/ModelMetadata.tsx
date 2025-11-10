@@ -99,16 +99,29 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
       });
 
       if (response.ok) {
-        fetchModelDetails();
+        await fetchModelDetails();
+        await fetchModels();
         toast.success("Model retrained successfully!");
       } else {
-        toast.error("Retraining failed");
+        const error = await response.json();
+        toast.error(error.error || "Retraining failed");
       }
     } catch (error) {
       console.error("Failed to retrain model:", error);
       toast.error("Failed to retrain model");
     } finally {
       setRetraining(false);
+    }
+  };
+
+  // Fix: Safely parse featureColumnsJson - handle both string and already-parsed array
+  const parseFeatureColumns = (featureColumnsJson: any): string[] => {
+    if (!featureColumnsJson) return [];
+    if (Array.isArray(featureColumnsJson)) return featureColumnsJson;
+    try {
+      return JSON.parse(featureColumnsJson);
+    } catch {
+      return [];
     }
   };
 
@@ -131,6 +144,8 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
       </Card>
     );
   }
+
+  const featureColumns = parseFeatureColumns(modelData?.featureColumnsJson);
 
   return (
     <div className="space-y-6">
@@ -194,11 +209,7 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
                   <Database className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">Features</p>
-                    <p className="font-medium">
-                      {modelData.featureColumnsJson
-                        ? JSON.parse(modelData.featureColumnsJson).length
-                        : 0} columns
-                    </p>
+                    <p className="font-medium">{featureColumns.length} columns</p>
                   </div>
                 </div>
 
@@ -235,11 +246,11 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
           </Card>
 
           {/* Feature Columns */}
-          {modelData.featureColumnsJson && (
+          {featureColumns.length > 0 && (
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Feature Columns</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {JSON.parse(modelData.featureColumnsJson).map((col: string, idx: number) => (
+                {featureColumns.map((col: string, idx: number) => (
                   <div key={idx} className="p-2 bg-muted rounded text-sm font-medium">
                     {col}
                   </div>
