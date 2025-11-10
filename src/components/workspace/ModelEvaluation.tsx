@@ -68,9 +68,27 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
     }
   };
 
-  const confusionMatrixData = modelData?.confusionMatrixJson
-    ? JSON.parse(modelData.confusionMatrixJson)
-    : null;
+  // Fix JSON parsing - handle both string and already-parsed object
+  const getConfusionMatrix = () => {
+    if (!modelData?.confusionMatrixJson) return null;
+    
+    try {
+      // If it's already an object/array, return it directly
+      if (typeof modelData.confusionMatrixJson === 'object') {
+        return modelData.confusionMatrixJson;
+      }
+      // If it's a string, parse it
+      if (typeof modelData.confusionMatrixJson === 'string') {
+        return JSON.parse(modelData.confusionMatrixJson);
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to parse confusion matrix:", error);
+      return null;
+    }
+  };
+
+  const confusionMatrixData = getConfusionMatrix();
 
   const metricColors = {
     accuracy: "#10b981",
@@ -205,7 +223,7 @@ export default function ModelEvaluation({ workspaceId }: ModelEvaluationProps) {
           </Card>
 
           {/* Confusion Matrix */}
-          {confusionMatrixData && (
+          {confusionMatrixData && Array.isArray(confusionMatrixData) && (
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Confusion Matrix</h3>
               <div className="overflow-x-auto">
