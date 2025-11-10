@@ -3,11 +3,9 @@ import { datasets } from '@/db/schema';
 
 async function main() {
     const now = new Date();
-    const daysAgo = (days: number) => {
-        const date = new Date(now);
-        date.setDate(date.getDate() - days);
-        return date.toISOString();
-    };
+    const fifteenDaysAgo = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
+    const twentyDaysAgo = new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000);
+    const twentyFiveDaysAgo = new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000);
 
     const sampleDatasets = [
         {
@@ -15,57 +13,60 @@ async function main() {
             name: 'Support Tickets Dataset',
             filePath: '/uploads/datasets/support_tickets_2024.csv',
             fileSize: 3145728,
-            rowCount: 7856,
-            columnCount: 6,
-            columnsJson: [
+            rowCount: 7500,
+            columnCount: 7,
+            columnsJson: JSON.stringify([
                 'ticket_id',
                 'customer_name',
                 'issue_type',
                 'priority',
                 'status',
-                'resolution_time'
-            ],
+                'created_date',
+                'resolved_date'
+            ]),
             fileFormat: 'csv',
-            uploadedAt: daysAgo(18),
-            updatedAt: daysAgo(18),
+            uploadedAt: twentyFiveDaysAgo.toISOString(),
+            updatedAt: twentyFiveDaysAgo.toISOString(),
         },
         {
             workspaceId: 1,
             name: 'Customer Reviews Dataset',
             filePath: '/uploads/datasets/customer_reviews_q1.json',
-            fileSize: 4194304,
-            rowCount: 9342,
-            columnCount: 7,
-            columnsJson: [
+            fileSize: 4718592,
+            rowCount: 9200,
+            columnCount: 6,
+            columnsJson: JSON.stringify([
                 'review_id',
-                'product_name',
+                'product_id',
+                'customer_id',
                 'rating',
                 'review_text',
-                'sentiment',
-                'reviewer_location',
-                'review_date'
-            ],
+                'sentiment'
+            ]),
             fileFormat: 'json',
-            uploadedAt: daysAgo(22),
-            updatedAt: daysAgo(22),
+            uploadedAt: twentyDaysAgo.toISOString(),
+            updatedAt: twentyDaysAgo.toISOString(),
         },
         {
             workspaceId: 2,
-            name: 'Social Media Comments',
-            filePath: '/uploads/datasets/social_comments_march.yml',
+            name: 'Social Media Comments Dataset',
+            filePath: '/uploads/datasets/social_comments_march.csv',
             fileSize: 2621440,
-            rowCount: 5623,
-            columnCount: 5,
-            columnsJson: [
+            rowCount: 5800,
+            columnCount: 8,
+            columnsJson: JSON.stringify([
                 'comment_id',
-                'post_type',
+                'post_id',
+                'user_id',
                 'comment_text',
-                'engagement_score',
-                'timestamp'
-            ],
-            fileFormat: 'yml',
-            uploadedAt: daysAgo(15),
-            updatedAt: daysAgo(15),
+                'likes',
+                'replies',
+                'timestamp',
+                'platform'
+            ]),
+            fileFormat: 'csv',
+            uploadedAt: fifteenDaysAgo.toISOString(),
+            updatedAt: fifteenDaysAgo.toISOString(),
         },
     ];
 
