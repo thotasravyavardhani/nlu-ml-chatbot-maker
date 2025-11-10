@@ -158,38 +158,111 @@ export default function ModelTraining({ workspaceId }: ModelTrainingProps) {
 
     try {
       const token = localStorage.getItem("bearer_token");
-      const response = await fetch("/api/ml-models/train", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          workspaceId,
-          datasetId: selectedDataset,
-          problemType,
-          targetColumn: problemType !== "clustering" ? targetColumn : undefined,
-          algorithms: selectedAlgorithms,
-        }),
+      
+      // Get dataset content for Python backend
+      const datasetResponse = await fetch(`/api/datasets/${selectedDataset}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+      
+      let datasetContent = "";
+      let datasetFormat = "csv";
+      
+      if (datasetResponse.ok) {
+        const dataset = await datasetResponse.json();
+        datasetContent = dataset.fileContent || "";
+        datasetFormat = dataset.fileFormat || "csv";
+      }
+
+      // Try Python backend first
+      let pythonSuccess = false;
+      let pythonResults: any[] = [];
+      
+      if (backendStatus?.mlService.available && datasetContent) {
+        try {
+          const pythonResponse = await fetch("/api/python/ml/train", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              workspace_id: workspaceId,
+              dataset_id: selectedDataset,
+              dataset_content: datasetContent,
+              dataset_format: datasetFormat,
+              target_column: problemType !== "clustering" ? targetColumn : null,
+              problem_type: problemType,
+              algorithms: selectedAlgorithms,
+              test_size: 0.2,
+              n_clusters: 3,
+            }),
+          });
+
+          if (pythonResponse.ok) {
+            const pythonData = await pythonResponse.json();
+            pythonSuccess = true;
+            pythonResults = pythonData.results || [];
+            console.log('✅ Training completed using Python ML Backend');
+          }
+        } catch (error) {
+          console.log('⚠️ Python backend failed, falling back to database API');
+        }
+      }
 
       clearInterval(progressInterval);
 
-      if (response.ok) {
-        const data = await response.json();
-        setTrainingResults(data.results || []);
-        setTrainingProgress(100);
-        setLastBackend(data.backend || 'simulation');
-        toast.success(`Successfully trained ${selectedAlgorithms.length} models!`);
-        
-        if (data.backend === 'python') {
-          console.log('✅ Using Python ML Backend');
-        } else {
-          console.log('⚠️ Using Simulation Mode');
+      // If Python backend succeeded, use those results
+      if (pythonSuccess && pythonResults.length > 0) {
+        // Save results to database
+        const dbResponse = await fetch("/api/ml-models/train", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            workspaceId,
+            datasetId: selectedDataset,
+            problemType,
+            targetColumn: problemType !== "clustering" ? targetColumn : undefined,
+            algorithms: selectedAlgorithms,
+            pythonResults: pythonResults, // Pass Python results to save in DB
+          }),
+        });
+
+        if (dbResponse.ok) {
+          const data = await dbResponse.json();
+          setTrainingResults(data.results || []);
+          setTrainingProgress(100);
+          toast.success(`Successfully trained ${selectedAlgorithms.length} models using Python ML!`, {
+            description: "Models saved and ready for prediction",
+          });
         }
       } else {
-        const error = await response.json();
-        toast.error(error.error || "Training failed");
+        // Fallback to database API (simulation mode)
+        const response = await fetch("/api/ml-models/train", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            workspaceId,
+            datasetId: selectedDataset,
+            problemType,
+            targetColumn: problemType !== "clustering" ? targetColumn : undefined,
+            algorithms: selectedAlgorithms,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTrainingResults(data.results || []);
+          setTrainingProgress(100);
+          toast.success(`Successfully trained ${selectedAlgorithms.length} models!`, {
+            description: "Using simulation mode - connect Python backend for real ML",
+          });
+        } else {
+          const error = await response.json();
+          toast.error(error.error || "Training failed");
+        }
       }
     } catch (error) {
       console.error("Training failed:", error);
@@ -239,13 +312,16 @@ export default function ModelTraining({ workspaceId }: ModelTrainingProps) {
           </div>
           <div className="flex items-center gap-2 text-xs">
             <div className={`w-2 h-2 rounded-full ${backendStatus.mlService.available ? 'bg-green-500' : 'bg-yellow-500'}`} />
-            <span>ML Service: {backendStatus.mlService.available ? 'Connected - Real Training' : 'Simulation Mode'}</span>
+            <span>ML Service: {backendStatus.mlService.available ? 'Connected' : 'Simulation Mode'}</span>
+            {backendStatus.mlService.available && (
+              <Badge variant="default" className="ml-2">Python Backend Active</Badge>
+            )}
           </div>
           {!backendStatus.mlService.available && (
             <div className="mt-3 p-2 bg-yellow-500/10 rounded flex items-start gap-2 text-xs">
               <AlertCircle className="w-3 h-3 text-yellow-500 mt-0.5 flex-shrink-0" />
               <span className="text-yellow-700 dark:text-yellow-300">
-                Python ML backend not connected. Training will use simulation mode. See <code className="px-1 bg-background rounded">PYTHON_BACKEND_SETUP.md</code> to set up real scikit-learn/XGBoost training.
+                Python ML backend not connected. Training will use simulation mode. Run <code className="px-1 bg-background rounded">cd python-backend && ./start.sh</code> to enable real ML.
               </span>
             </div>
           )}
