@@ -4,8 +4,18 @@ import { auth } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
+  
+  // If no session exists, redirect to login
+  if (!session?.user) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+  
+  // Allow request to proceed if authenticated
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard", "/workspace"],
+  matcher: ["/dashboard/:path*", "/workspace/:path*", "/profile/:path*", "/settings/:path*"],
 };
