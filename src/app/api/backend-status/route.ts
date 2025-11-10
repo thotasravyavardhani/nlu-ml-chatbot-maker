@@ -1,50 +1,49 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  const status = {
-    mlService: { available: false, url: process.env.PYTHON_ML_SERVICE_URL || 'not configured' },
-    rasaService: { available: false, url: process.env.PYTHON_RASA_SERVICE_URL || 'not configured' },
-    rasaServer: { available: false, url: process.env.RASA_SERVER_URL || 'not configured' },
-  };
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+const RASA_SERVICE_URL = process.env.RASA_SERVICE_URL || 'http://localhost:8001';
+const RASA_SERVER_URL = process.env.RASA_SERVER_URL || 'http://localhost:5005';
 
-  // Check ML Service
-  if (process.env.PYTHON_ML_SERVICE_URL) {
-    try {
-      const mlResponse = await fetch(`${process.env.PYTHON_ML_SERVICE_URL}/health`, {
-        method: 'GET',
-        signal: AbortSignal.timeout(2000),
-      });
-      status.mlService.available = mlResponse.ok;
-    } catch (error) {
-      // Service unavailable
-    }
+async function checkService(url: string, timeout: number = 3000): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(`${url}/health`, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    return response.ok;
+  } catch (error) {
+    return false;
   }
+}
 
-  // Check Rasa Service
-  if (process.env.PYTHON_RASA_SERVICE_URL) {
-    try {
-      const rasaResponse = await fetch(`${process.env.PYTHON_RASA_SERVICE_URL}/health`, {
-        method: 'GET',
-        signal: AbortSignal.timeout(2000),
-      });
-      status.rasaService.available = rasaResponse.ok;
-    } catch (error) {
-      // Service unavailable
-    }
-  }
+export async function GET() {
+  const [mlAvailable, rasaAvailable, rasaServerAvailable] = await Promise.all([
+    checkService(ML_SERVICE_URL),
+    checkService(RASA_SERVICE_URL),
+    checkService(RASA_SERVER_URL),
+  ]);
 
-  // Check Rasa Server
-  if (process.env.RASA_SERVER_URL) {
-    try {
-      const serverResponse = await fetch(`${process.env.RASA_SERVER_URL}/status`, {
-        method: 'GET',
-        signal: AbortSignal.timeout(2000),
-      });
-      status.rasaServer.available = serverResponse.ok;
-    } catch (error) {
-      // Service unavailable
-    }
-  }
-
-  return NextResponse.json(status, { status: 200 });
+  return NextResponse.json({
+    mlService: {
+      available: mlAvailable,
+      url: ML_SERVICE_URL,
+      status: mlAvailable ? 'connected' : 'offline',
+    },
+    rasaService: {
+      available: rasaAvailable,
+      url: RASA_SERVICE_URL,
+      status: rasaAvailable ? 'connected' : 'offline',
+    },
+    rasaServer: {
+      available: rasaServerAvailable,
+      url: RASA_SERVER_URL,
+      status: rasaServerAvailable ? 'connected' : 'offline',
+    },
+    timestamp: new Date().toISOString(),
+  });
 }
