@@ -1,0 +1,1 @@
+ALTER TABLE `datasets` ADD `file_format` text;

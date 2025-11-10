@@ -30,6 +30,7 @@ export const datasets = sqliteTable('datasets', {
   rowCount: integer('row_count'),
   columnCount: integer('column_count'),
   columnsJson: text('columns_json', { mode: 'json' }),
+  fileFormat: text('file_format'),
   uploadedAt: text('uploaded_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
