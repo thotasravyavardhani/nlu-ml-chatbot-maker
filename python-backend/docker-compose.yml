@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  ml-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.ml
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./ml_service.py:/app/ml_service.py
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  rasa-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.rasa
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./rasa_projects:/app/rasa_projects
+      - ./rasa_service.py:/app/rasa_service.py
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  default:
+    name: nlu-ml-network
