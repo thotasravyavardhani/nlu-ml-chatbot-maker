@@ -49,14 +49,14 @@ export default function LoginPage() {
               <div className="p-3 bg-gradient-to-br from-primary to-purple-600 rounded-2xl shadow-lg">
                 <Brain className="h-8 w-8 text-white" />
               </div>
-              <span className="text-2xl font-bold text-foreground">NLU ML Platform</span>
+              <span className="text-2xl font-bold text-foreground">NLU Studio</span>
             </Link>
           </div>
 
           <div className="bg-white border-2 border-primary/20 rounded-3xl shadow-2xl p-8">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
-              <p className="text-muted-foreground">Sign in to continue your AI journey</p>
+              <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back</h1>
+              <p className="text-muted-foreground">Sign in to your account to continue</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -136,9 +136,20 @@ export default function LoginPage() {
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
                 <Link href="/register" className="text-primary font-bold hover:underline">
-                  Create one now
+                  Create one
                 </Link>
               </p>
+            </div>
+
+            {/* Demo Account Info */}
+            <div className="mt-6 pt-6 border-t-2 border-border">
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                <p className="text-sm font-bold text-blue-900 mb-2">Demo Account</p>
+                <div className="space-y-1 text-sm text-blue-700">
+                  <p><span className="font-semibold">Email:</span> demo@nluapp.com</p>
+                  <p><span className="font-semibold">Password:</span> demo123456</p>
+                </div>
+              </div>
             </div>
           </div>
 
