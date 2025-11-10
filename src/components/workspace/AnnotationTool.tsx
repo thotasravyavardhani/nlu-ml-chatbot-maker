@@ -24,7 +24,7 @@ interface Entity {
 
 export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
   const [models, setModels] = useState<any[]>([]);
-  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("unassigned");
   const [text, setText] = useState("");
   const [intent, setIntent] = useState("");
   const [entities, setEntities] = useState<Entity[]>([]);
@@ -105,7 +105,7 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          nluModelId: selectedModel || null,
+          nluModelId: selectedModel === "unassigned" ? null : selectedModel,
           workspaceId,
           text,
           intent,
@@ -167,7 +167,7 @@ export default function AnnotationTool({ workspaceId }: AnnotationToolProps) {
               <SelectValue placeholder="Choose an NLU model or leave unassigned" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Unassigned</SelectItem>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
               {models.map((model) => (
                 <SelectItem key={model.id} value={model.id.toString()}>
                   {model.modelName}
