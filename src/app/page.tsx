@@ -47,18 +47,6 @@ export default function Home() {
           }}
         />
 
-        {/* Center decorative element */}
-        <div 
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] opacity-[0.04]"
-          style={{
-            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-ai-and-machine-learning-dashboard-a9b59c52-20251110154558.jpg')`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            transform: `translateY(${scrollY * 0.05}px)`,
-          }}
-        />
-
         {/* Decorative gradient orbs - contained */}
         <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl" />
@@ -153,9 +141,9 @@ export default function Home() {
             
             <div className="relative" style={{ animation: 'fadeInUp 0.8s ease-out 0.2s both' }}>
               <div className="absolute -inset-4 bg-gradient-to-br from-blue-400/20 to-purple-500/20 rounded-3xl blur-2xl" />
-              <div className="relative bg-white p-2 rounded-2xl shadow-2xl border-2 border-gray-200">
+              <div className="relative bg-white p-3 rounded-2xl shadow-2xl border-2 border-gray-200">
                 <Image
-                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-ai-and-machine-learning-dashboard-a9b59c52-20251110154558.jpg"
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-professional-nlu-ml-platform-dash-3441cf8f-20251110175143.jpg"
                   alt="NLU ML Platform Dashboard"
                   width={800}
                   height={600}
@@ -190,7 +178,7 @@ export default function Home() {
                 title: "Workspace Management",
                 icon: Brain,
                 description: "Organize your projects with dedicated workspaces. Manage multiple chatbots and datasets efficiently.",
-                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/workspace-and-project-management-illustr-f847cbbe-20251110154558.jpg",
+                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-professional-workspace-organizati-d537ca5e-20251110175142.jpg",
                 gradient: "from-blue-500 to-cyan-500",
                 bgGradient: "from-blue-50 to-cyan-50"
               },
@@ -198,7 +186,7 @@ export default function Home() {
                 title: "Smart Dataset Management",
                 icon: Upload,
                 description: "Upload CSV datasets, preview data, select columns, and prepare your training data with ease.",
-                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/professional-illustration-of-dataset-upl-52b41147-20251110154558.jpg",
+                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/minimalist-professional-illustration-of--09377028-20251110175143.jpg",
                 gradient: "from-purple-500 to-pink-500",
                 bgGradient: "from-purple-50 to-pink-50"
               },
@@ -206,7 +194,7 @@ export default function Home() {
                 title: "Multiple ML Algorithms",
                 icon: Cpu,
                 description: "Train with Random Forest, SVM, Logistic Regression, Decision Tree, KNN, and XGBoost. Auto-select the best model.",
-                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/machine-learning-model-training-visualiz-ab0f39a7-20251110154558.jpg",
+                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/professional-illustration-of-multiple-ai-2417632d-20251110175143.jpg",
                 gradient: "from-green-500 to-emerald-500",
                 bgGradient: "from-green-50 to-emerald-50"
               },
@@ -214,6 +202,7 @@ export default function Home() {
                 title: "Advanced Model Evaluation",
                 icon: LineChart,
                 description: "Comprehensive metrics including accuracy, precision, recall, F1-score, and confusion matrix visualizations.",
+                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/professional-illustration-of-machine-lea-9f542947-20251110175143.jpg",
                 gradient: "from-orange-500 to-red-500",
                 bgGradient: "from-orange-50 to-red-50"
               },
@@ -221,7 +210,7 @@ export default function Home() {
                 title: "RASA-Powered Chatbots",
                 icon: MessageSquare,
                 description: "Build conversational AI with RASA integration. Train and test your NLU models in real-time.",
-                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/ai-chatbot-and-nlu-training-interface-il-fb6e291f-20251110154559.jpg",
+                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/professional-illustration-of-ai-chatbot--79167e44-20251110175143.jpg",
                 gradient: "from-teal-500 to-cyan-500",
                 bgGradient: "from-teal-50 to-cyan-50"
               },
@@ -229,6 +218,7 @@ export default function Home() {
                 title: "NLU Annotation Tool",
                 icon: Tag,
                 description: "Label intents and entities with an intuitive annotation interface. Improve your chatbot's understanding.",
+                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-professional-nlu-ml-platform-dash-3441cf8f-20251110175143.jpg",
                 gradient: "from-pink-500 to-rose-500",
                 bgGradient: "from-pink-50 to-rose-50"
               },
@@ -237,17 +227,15 @@ export default function Home() {
                 key={index}
                 className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:border-blue-300 transition-all duration-300 group hover:-translate-y-2"
               >
-                {feature.image && (
-                  <div className="overflow-hidden h-48 bg-gradient-to-br from-gray-50 to-gray-100">
-                    <Image
-                      src={feature.image}
-                      alt={feature.title}
-                      width={400}
-                      height={300}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  </div>
-                )}
+                <div className="overflow-hidden h-48 bg-gradient-to-br from-gray-50 to-gray-100">
+                  <Image
+                    src={feature.image}
+                    alt={feature.title}
+                    width={400}
+                    height={300}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
                 <div className="p-6">
                   <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.bgGradient} border-2 border-gray-200 mb-4`}>
                     <feature.icon className={`h-6 w-6 bg-gradient-to-r ${feature.gradient} bg-clip-text text-transparent`} style={{ WebkitTextFillColor: 'transparent', backgroundClip: 'text' }} />
@@ -261,7 +249,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* How It Works Section with Images */}
       <section className="py-20 bg-white relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -277,21 +265,147 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { step: "1", title: "Create Workspace", description: "Sign up and create your first workspace to organize your projects", color: "from-blue-500 to-cyan-500" },
-              { step: "2", title: "Upload Dataset", description: "Upload your CSV dataset and preview the data structure", color: "from-purple-500 to-pink-500" },
-              { step: "3", title: "Train Models", description: "Run multiple ML algorithms and automatically select the best performer", color: "from-green-500 to-emerald-500" },
-              { step: "4", title: "Deploy & Test", description: "Deploy your chatbot and test with real conversations", color: "from-orange-500 to-red-500" },
-            ].map((item, index) => (
-              <div key={index} className="text-center group">
-                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br ${item.color} text-white mb-6 shadow-xl group-hover:shadow-2xl transition-all group-hover:scale-110`}>
-                  <span className="text-3xl font-extrabold">{item.step}</span>
+          {/* Visual workflow with images */}
+          <div className="space-y-16">
+            {/* Step 1 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="order-2 lg:order-1">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white mb-6 shadow-xl">
+                  <span className="text-2xl font-extrabold">1</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                <p className="text-gray-600 leading-relaxed font-medium">{item.description}</p>
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">Create Workspace</h3>
+                <p className="text-lg text-gray-600 leading-relaxed font-medium mb-6">
+                  Sign up and create your first workspace to organize your projects. Manage multiple chatbots and datasets efficiently in one place.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <span className="font-medium">Organize multiple projects</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <span className="font-medium">Team collaboration ready</span>
+                  </li>
+                </ul>
               </div>
-            ))}
+              <div className="relative order-1 lg:order-2">
+                <div className="absolute -inset-4 bg-gradient-to-br from-blue-400/20 to-cyan-500/20 rounded-3xl blur-2xl" />
+                <div className="relative bg-white p-3 rounded-2xl shadow-2xl border-2 border-gray-200">
+                  <Image
+                    src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-professional-workspace-organizati-d537ca5e-20251110175142.jpg"
+                    alt="Create Workspace"
+                    width={600}
+                    height={450}
+                    className="rounded-xl w-full h-auto"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-br from-purple-400/20 to-pink-500/20 rounded-3xl blur-2xl" />
+                <div className="relative bg-white p-3 rounded-2xl shadow-2xl border-2 border-gray-200">
+                  <Image
+                    src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/minimalist-professional-illustration-of--09377028-20251110175143.jpg"
+                    alt="Upload Dataset"
+                    width={600}
+                    height={450}
+                    className="rounded-xl w-full h-auto"
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-white mb-6 shadow-xl">
+                  <span className="text-2xl font-extrabold">2</span>
+                </div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">Upload Dataset</h3>
+                <p className="text-lg text-gray-600 leading-relaxed font-medium mb-6">
+                  Upload your CSV dataset and preview the data structure. Select target columns and prepare your training data with ease.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                    <span className="font-medium">Support for CSV, JSON, YML formats</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                    <span className="font-medium">Interactive data preview</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="order-2 lg:order-1">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white mb-6 shadow-xl">
+                  <span className="text-2xl font-extrabold">3</span>
+                </div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">Train Models</h3>
+                <p className="text-lg text-gray-600 leading-relaxed font-medium mb-6">
+                  Run multiple ML algorithms simultaneously and automatically select the best performer based on accuracy metrics.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="font-medium">6+ ML algorithms (Random Forest, SVM, XGBoost, etc.)</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="font-medium">Automatic model selection</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="relative order-1 lg:order-2">
+                <div className="absolute -inset-4 bg-gradient-to-br from-green-400/20 to-emerald-500/20 rounded-3xl blur-2xl" />
+                <div className="relative bg-white p-3 rounded-2xl shadow-2xl border-2 border-gray-200">
+                  <Image
+                    src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/professional-illustration-of-multiple-ai-2417632d-20251110175143.jpg"
+                    alt="Train Models"
+                    width={600}
+                    height={450}
+                    className="rounded-xl w-full h-auto"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-br from-orange-400/20 to-red-500/20 rounded-3xl blur-2xl" />
+                <div className="relative bg-white p-3 rounded-2xl shadow-2xl border-2 border-gray-200">
+                  <Image
+                    src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/professional-illustration-of-ai-chatbot--79167e44-20251110175143.jpg"
+                    alt="Deploy and Test"
+                    width={600}
+                    height={450}
+                    className="rounded-xl w-full h-auto"
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 text-white mb-6 shadow-xl">
+                  <span className="text-2xl font-extrabold">4</span>
+                </div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">Deploy & Test</h3>
+                <p className="text-lg text-gray-600 leading-relaxed font-medium mb-6">
+                  Deploy your chatbot and test with real conversations. Download trained models and continuously improve with retraining.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                    <span className="font-medium">Real-time chat interface</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                    <span className="font-medium">Export as .pickle or .h5 files</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -333,9 +447,9 @@ export default function Home() {
             </div>
             <div className="relative order-1 lg:order-2">
               <div className="absolute -inset-4 bg-gradient-to-br from-purple-400/20 to-pink-500/20 rounded-3xl blur-2xl" />
-              <div className="relative bg-white p-2 rounded-2xl shadow-2xl border-2 border-gray-200">
+              <div className="relative bg-white p-3 rounded-2xl shadow-2xl border-2 border-gray-200">
                 <Image
-                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/machine-learning-model-training-visualiz-ab0f39a7-20251110154558.jpg"
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/professional-illustration-of-machine-lea-9f542947-20251110175143.jpg"
                   alt="Platform Benefits"
                   width={600}
                   height={500}
