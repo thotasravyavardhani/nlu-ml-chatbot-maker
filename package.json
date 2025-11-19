@@ -3,10 +3,17 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --turbopack",
+        "dev": "next dev",
+        "dev:turbo": "next dev --turbopack",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "start:all": "node -e \"process.platform === 'win32' ? require('child_process').spawn('cmd', ['/c', 'start-all.bat'], {stdio: 'inherit'}) : require('child_process').spawn('bash', ['start-all.sh'], {stdio: 'inherit'})\"",
+        "stop:all": "node -e \"process.platform === 'win32' ? require('child_process').spawn('cmd', ['/c', 'stop-all.bat'], {stdio: 'inherit'}) : require('child_process').spawn('bash', ['stop-all.sh'], {stdio: 'inherit'})\"",
+        "start:backend": "node -e \"process.platform === 'win32' ? require('child_process').spawn('cmd', ['/c', 'start-backend.bat'], {stdio: 'inherit'}) : require('child_process').spawn('bash', ['python-backend/start.sh'], {stdio: 'inherit', cwd: 'python-backend'})\"",
+        "stop:backend": "cd python-backend && docker-compose down",
+        "logs:backend": "cd python-backend && docker-compose logs -f",
+        "restart:backend": "cd python-backend && docker-compose restart"
     },
     "dependencies": {
         "@babel/parser": "^7.28.5",
@@ -53,7 +60,7 @@
         "autumn-js": "^0.1.43",
         "bcrypt": "^6.0.0",
         "bcryptjs": "^3.0.3",
-        "better-auth": "1.3.10",
+        "better-auth": "^1.3.17",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
