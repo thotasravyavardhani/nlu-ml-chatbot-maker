@@ -1,0 +1,226 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - Hello
+    - Hi there
+    - Good morning
+    - Hey
+    - Hi
+    - Good afternoon
+    - Good evening
+    - Hello, I need help
+    - Hi, can you assist me?
+
+- intent: product_search
+  examples: |
+    - I'm looking for a laptop
+    - Show me smartphones
+    - Do you have wireless headphones?
+    - I need a new laptop for work
+    - Can you show me gaming laptops?
+    - I want to buy a phone
+    - What laptops do you have?
+    - Show me your latest smartphones
+    - Do you sell tablets?
+    - I'm searching for smartwatches
+    - Looking for wireless earbuds
+    - Show me your iPhone models
+    - I need a MacBook
+    - What cameras do you have in stock?
+    - Do you have bluetooth speakers?
+
+- intent: add_to_cart
+  examples: |
+    - Add this to my cart
+    - I want to buy this
+    - Add to cart
+    - Put this in my basket
+    - I'll take this one
+    - Add 2 of these to cart
+    - Can I add this to my order?
+    - I want to purchase this item
+    - Add this product please
+    - Put 3 in my cart
+    - I'd like to order this
+    - Add to my shopping cart
+
+- intent: view_cart
+  examples: |
+    - Show me my cart
+    - What's in my basket?
+    - View cart
+    - Check my cart
+    - What items do I have?
+    - Show my shopping cart
+    - Display cart contents
+    - What have I added?
+    - Let me see my cart
+    - Cart summary please
+
+- intent: checkout
+  examples: |
+    - I want to checkout
+    - Proceed to payment
+    - Complete my order
+    - I'm ready to pay
+    - Take me to checkout
+    - Finalize purchase
+    - Process my order
+    - Complete purchase
+    - I want to buy now
+    - Checkout please
+    - Pay for items
+    - Complete transaction
+
+- intent: order_status
+  examples: |
+    - Where is my order?
+    - Track my order
+    - Order status
+    - Check my order
+    - Has my order shipped?
+    - When will my order arrive?
+    - Is my order on the way?
+    - Track package
+    - Order tracking number
+    - Check delivery status
+    - Where's my package?
+    - When will I receive my order?
+
+- intent: shipping_info
+  examples: |
+    - How much is shipping?
+    - What are shipping costs?
+    - Do you offer free shipping?
+    - Shipping options
+    - How long does delivery take?
+    - What delivery methods do you have?
+    - Express shipping cost
+    - International shipping
+    - Shipping to Canada
+    - Delivery time frame
+    - Do you ship worldwide?
+    - Same day delivery available?
+
+- intent: return_policy
+  examples: |
+    - What is your return policy?
+    - Can I return this item?
+    - How do I return a product?
+    - Return process
+    - Refund policy
+    - Can I get my money back?
+    - How long do I have to return?
+    - Return shipping cost
+    - Exchange policy
+    - Return an order
+    - Refund timeline
+    - Do you accept returns?
+
+- intent: product_details
+  examples: |
+    - Tell me about this product
+    - Product specifications
+    - What are the features?
+    - More details please
+    - Product information
+    - Technical specs
+    - What's included?
+    - Product dimensions
+    - Battery life
+    - Is it water resistant?
+    - What colors are available?
+    - Storage capacity options
+
+- intent: price_inquiry
+  examples: |
+    - How much does this cost?
+    - What's the price?
+    - Is this on sale?
+    - Any discounts available?
+    - Price of this item
+    - How much is it?
+    - Are there any deals?
+    - Current price
+    - Is there a promotion?
+    - Do you have coupons?
+    - Price range
+    - Can I get a discount?
+
+- intent: stock_availability
+  examples: |
+    - Is this in stock?
+    - Do you have this available?
+    - Stock status
+    - When will it be back in stock?
+    - Out of stock items
+    - Availability check
+    - Is it available now?
+    - Restock date
+    - Notify when in stock
+    - Product availability
+    - Do you have more?
+
+- intent: payment_methods
+  examples: |
+    - What payment methods do you accept?
+    - Can I pay with PayPal?
+    - Do you accept credit cards?
+    - Payment options
+    - Can I use Apple Pay?
+    - Do you take debit cards?
+    - Google Pay accepted?
+    - Installment payment
+    - Pay in installments
+    - Cash on delivery available?
+
+- intent: cancel_order
+  examples: |
+    - I want to cancel my order
+    - Cancel order
+    - Stop my order
+    - I changed my mind
+    - Cancel purchase
+    - Remove my order
+    - Undo my order
+    - I don't want this anymore
+    - Cancel shipment
+    - Stop delivery
+
+- intent: complaint
+  examples: |
+    - I have a complaint
+    - This product is damaged
+    - Item doesn't work
+    - Poor quality
+    - Not satisfied
+    - Wrong item received
+    - Missing parts
+    - Defective product
+    - This is broken
+    - Not as described
+    - Quality issue
+
+- intent: thank_you
+  examples: |
+    - Thank you
+    - Thanks for your help
+    - Great service
+    - I appreciate it
+    - Thanks so much
+    - Perfect thank you
+    - Helpful, thanks
+    - Much appreciated
+
+- intent: goodbye
+  examples: |
+    - Bye
+    - Goodbye
+    - See you later
+    - That's all
+    - I'm done
+    - Thanks, bye
+    - Have a good day
+    - Farewell

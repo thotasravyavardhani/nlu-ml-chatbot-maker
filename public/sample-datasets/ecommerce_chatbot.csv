@@ -1,0 +1,85 @@
+text,intent
+Hello,greet
+Hi there,greet
+Good morning,greet
+Hey,greet
+Hi,greet
+I'm looking for a laptop,product_search
+Show me smartphones,product_search
+Do you have wireless headphones?,product_search
+I need a new laptop for work,product_search
+Can you show me gaming laptops?,product_search
+I want to buy a phone,product_search
+What laptops do you have?,product_search
+Show me your latest smartphones,product_search
+Do you sell tablets?,product_search
+I'm searching for smartwatches,product_search
+Add this to my cart,add_to_cart
+I want to buy this,add_to_cart
+Add to cart,add_to_cart
+Put this in my basket,add_to_cart
+I'll take this one,add_to_cart
+Add 2 of these to cart,add_to_cart
+Can I add this to my order?,add_to_cart
+Show me my cart,view_cart
+What's in my basket?,view_cart
+View cart,view_cart
+Check my cart,view_cart
+What items do I have?,view_cart
+I want to checkout,checkout
+Proceed to payment,checkout
+Complete my order,checkout
+I'm ready to pay,checkout
+Take me to checkout,checkout
+Where is my order?,order_status
+Track my order,order_status
+Order status,order_status
+Check my order,order_status
+Has my order shipped?,order_status
+When will my order arrive?,order_status
+How much is shipping?,shipping_info
+What are shipping costs?,shipping_info
+Do you offer free shipping?,shipping_info
+Shipping options,shipping_info
+How long does delivery take?,shipping_info
+What is your return policy?,return_policy
+Can I return this item?,return_policy
+How do I return a product?,return_policy
+Return process,return_policy
+Refund policy,return_policy
+Tell me about this product,product_details
+Product specifications,product_details
+What are the features?,product_details
+More details please,product_details
+Product information,product_details
+How much does this cost?,price_inquiry
+What's the price?,price_inquiry
+Is this on sale?,price_inquiry
+Any discounts available?,price_inquiry
+Price of this item,price_inquiry
+Is this in stock?,stock_availability
+Do you have this available?,stock_availability
+Stock status,stock_availability
+When will it be back in stock?,stock_availability
+What payment methods do you accept?,payment_methods
+Can I pay with PayPal?,payment_methods
+Do you accept credit cards?,payment_methods
+Payment options,payment_methods
+Can I use Apple Pay?,payment_methods
+I want to cancel my order,cancel_order
+Cancel order,cancel_order
+Stop my order,cancel_order
+I changed my mind,cancel_order
+I have a complaint,complaint
+This product is damaged,complaint
+Item doesn't work,complaint
+Poor quality,complaint
+Not satisfied,complaint
+Thank you,thank_you
+Thanks for your help,thank_you
+Great service,thank_you
+I appreciate it,thank_you
+Bye,goodbye
+Goodbye,goodbye
+See you later,goodbye
+That's all,goodbye
