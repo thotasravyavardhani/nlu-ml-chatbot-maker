@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { workspaces } from '@/db/schema';
 import { eq, like, and, or, desc } from 'drizzle-orm';
-import { getCurrentUser } from '@/lib/auth';
+import { validateSessionFromCookies } from '@/lib/auth-helpers';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') ?? '0');
     const search = searchParams.get('search');
 
-    let query = db.select().from(workspaces).where(eq(workspaces.userId, user.id));
+    let query = db.select().from(workspaces).where(eq(workspaces.userId, user.userId));
 
     if (search) {
       const searchCondition = or(
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       query = db
         .select()
         .from(workspaces)
-        .where(and(eq(workspaces.userId, user.id), searchCondition));
+        .where(and(eq(workspaces.userId, user.userId), searchCondition));
     }
 
     const results = await query
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Prepare insert data
     const now = new Date().toISOString();
     const insertData = {
-      userId: user.id,
+      userId: user.userId,
       name: name.trim(),
       description: description ? description.trim() : null,
       createdAt: now,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const user = await getCurrentUser(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -139,7 +139,7 @@ export async function PUT(request: NextRequest) {
     const existing = await db
       .select()
       .from(workspaces)
-      .where(and(eq(workspaces.id, parseInt(id)), eq(workspaces.userId, user.id)))
+      .where(and(eq(workspaces.id, parseInt(id)), eq(workspaces.userId, user.userId)))
       .limit(1);
 
     if (existing.length === 0) {
@@ -173,7 +173,7 @@ export async function PUT(request: NextRequest) {
     const updated = await db
       .update(workspaces)
       .set(updates)
-      .where(and(eq(workspaces.id, parseInt(id)), eq(workspaces.userId, user.id)))
+      .where(and(eq(workspaces.id, parseInt(id)), eq(workspaces.userId, user.userId)))
       .returning();
 
     if (updated.length === 0) {
@@ -195,7 +195,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const user = await getCurrentUser(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -217,7 +217,7 @@ export async function DELETE(request: NextRequest) {
     const existing = await db
       .select()
       .from(workspaces)
-      .where(and(eq(workspaces.id, parseInt(id)), eq(workspaces.userId, user.id)))
+      .where(and(eq(workspaces.id, parseInt(id)), eq(workspaces.userId, user.userId)))
       .limit(1);
 
     if (existing.length === 0) {
@@ -229,7 +229,7 @@ export async function DELETE(request: NextRequest) {
 
     const deleted = await db
       .delete(workspaces)
-      .where(and(eq(workspaces.id, parseInt(id)), eq(workspaces.userId, user.id)))
+      .where(and(eq(workspaces.id, parseInt(id)), eq(workspaces.userId, user.userId)))
       .returning();
 
     if (deleted.length === 0) {

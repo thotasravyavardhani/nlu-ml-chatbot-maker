@@ -1,44 +1,26 @@
-import { NextResponse } from 'next/server';
-
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
-const RASA_SERVICE_URL = process.env.RASA_SERVICE_URL || 'http://localhost:8001';
-
-export async function GET() {
-  const results = {
-    ml_service: { status: 'unknown', url: ML_SERVICE_URL },
-    rasa_service: { status: 'unknown', url: RASA_SERVICE_URL },
-  };
-
-  try {
-    const mlResponse = await fetch(`${ML_SERVICE_URL}/health`, {
-      method: 'GET',
-      signal: AbortSignal.timeout(5000),
-    });
-    results.ml_service.status = mlResponse.ok ? 'healthy' : 'unhealthy';
-  } catch (error) {
-    results.ml_service.status = 'offline';
-  }
-
-  try {
-    const rasaResponse = await fetch(`${RASA_SERVICE_URL}/health`, {
-      method: 'GET',
-      signal: AbortSignal.timeout(5000),
-    });
-    results.rasa_service.status = rasaResponse.ok ? 'healthy' : 'unhealthy';
-  } catch (error) {
-    results.rasa_service.status = 'offline';
-  }
-
-  const allHealthy = 
-    results.ml_service.status === 'healthy' && 
-    results.rasa_service.status === 'healthy';
-
-  return NextResponse.json(
-    {
-      status: allHealthy ? 'healthy' : 'degraded',
-      services: results,
-      timestamp: new Date().toISOString(),
-    },
-    { status: allHealthy ? 200 : 503 }
-  );
-}
+<<<<<<< HEAD
+TURSO_CONNECTION_URL=libsql://db-586a0e30-c7a5-438f-8c09-f250c2d77bab-orchids.aws-us-west-2.turso.io
+BETTER_AUTH_SECRET=SPey0YGoyiVIFpNyJSzJKIRilTWjsLc6Hv93aWEOdFk=
+# Python Backend URL - Updated to match running Flask server on port 5000
+PYTHON_BACKEND_URL=http://localhost:5000
+# Python Backend Services (Docker Compose Ports - if using Docker)
+ML_SERVICE_URL=http://localhost:8000
+RASA_SERVICE_URL=http://localhost:8001
+RASA_SERVER_URL=http://localhost:5005
+# Legacy variable names for backward compatibility
+PYTHON_ML_SERVICE_URL=http://localhost:5000
+PYTHON_RASA_SERVICE_URL=http://localhost:5000
+=======
+TURSO_CONNECTION_URL=libsql://db-586a0e30-c7a5-438f-8c09-f250c2d77bab-orchids.aws-us-west-2.turso.io
+BETTER_AUTH_SECRET=SPey0YGoyiVIFpNyJSzJKIRilTWjsLc6Hv93aWEOdFk=
+# Python Backend URL - Updated to match running Flask server on port 5000
+PYTHON_BACKEND_URL=http://localhost:5000
+# Python Backend Services (Docker Compose Ports - if using Docker)
+ML_SERVICE_URL=http://localhost:8000
+RASA_SERVICE_URL=http://localhost:8001
+RASA_SERVER_URL=http://localhost:5005
+# Legacy variable names for backward compatibility
+PYTHON_ML_SERVICE_URL=http://localhost:5000
+PYTHON_RASA_SERVICE_URL=http://localhost:5000
+>>>>>>> e379c73 (Complete NLU ML Platform with all features)
+TURSO_AUTH_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NjI5NjUwNDksImlkIjoiYTIzNmE1ZGItMDY3Yy00Yzg3LWE2MjYtNjUzYjJiNmEwZTZhIiwicmlkIjoiNmFjZjA4MjgtY2JkNy00NTFhLWExYjAtYWY0NDU4ZjcxYjdkIn0.sfERK7HBXUp1_iMj20xz76E5bq6qwuV-bHt_Qev2L-mPhfb_ORo_yRUvRgYscAxkqTulHLCk5vFxk1r9RTuVCg

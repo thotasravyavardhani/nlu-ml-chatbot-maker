@@ -1,46 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { workspaces, session } from '@/db/schema';
+import { workspaces } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
-
-async function authenticateRequest(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-
-  const token = authHeader.substring(7);
-
-  try {
-    const sessionRecord = await db.select()
-      .from(session)
-      .where(eq(session.token, token))
-      .limit(1);
-
-    if (sessionRecord.length === 0) {
-      return null;
-    }
-
-    const userSession = sessionRecord[0];
-
-    if (new Date(userSession.expiresAt) < new Date()) {
-      return null;
-    }
-
-    return { id: userSession.userId };
-  } catch (error) {
-    console.error('Authentication error:', error);
-    return null;
-  }
-}
+import { validateSessionFromCookies } from '@/lib/auth-helpers';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await authenticateRequest(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -62,7 +31,7 @@ export async function GET(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, user.id)
+          eq(workspaces.userId, user.userId)
         )
       )
       .limit(1);
@@ -89,7 +58,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await authenticateRequest(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -121,7 +90,7 @@ export async function PUT(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, user.id)
+          eq(workspaces.userId, user.userId)
         )
       )
       .limit(1);
@@ -160,7 +129,7 @@ export async function PUT(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, user.id)
+          eq(workspaces.userId, user.userId)
         )
       )
       .returning();
@@ -187,7 +156,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await authenticateRequest(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -209,7 +178,7 @@ export async function DELETE(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, user.id)
+          eq(workspaces.userId, user.userId)
         )
       )
       .limit(1);
@@ -225,7 +194,7 @@ export async function DELETE(
       .where(
         and(
           eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, user.id)
+          eq(workspaces.userId, user.userId)
         )
       )
       .returning();
