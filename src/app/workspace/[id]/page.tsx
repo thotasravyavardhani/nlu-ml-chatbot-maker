@@ -3,13 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { Brain, Database, Zap, BarChart3, MessageSquare, Settings as SettingsIcon, FileText, ArrowLeft, Menu, X, Loader2, Target } from "lucide-react";
+import { Brain, Database, Zap, BarChart3, MessageSquare, Settings as SettingsIcon, ArrowLeft, Menu, X, Loader2, Target } from "lucide-react";
 import DatasetManager from "@/components/workspace/DatasetManager";
 import ModelTraining from "@/components/workspace/ModelTraining";
 import ModelEvaluation from "@/components/workspace/ModelEvaluation";
 import ModelPrediction from "@/components/workspace/ModelPrediction";
 import NLUChatbot from "@/components/workspace/NLUChatbot";
-import AnnotationTool from "@/components/workspace/AnnotationTool";
 import ModelMetadata from "@/components/workspace/ModelMetadata";
 
 interface Workspace {
@@ -18,7 +17,7 @@ interface Workspace {
   description: string | null;
 }
 
-type TabType = "dataset" | "train" | "predict" | "evaluation" | "nlu-chatbot" | "annotation" | "metadata";
+type TabType = "dataset" | "train" | "predict" | "evaluation" | "nlu-chatbot" | "metadata";
 
 export default function WorkspacePage() {
   const params = useParams();
@@ -32,34 +31,46 @@ export default function WorkspacePage() {
 
   useEffect(() => {
     if (!isPending && !session?.user) {
-      router.push("/login");
+      router.push("/login?redirect=" + encodeURIComponent(`/workspace/${params.id}`));
     }
-  }, [session, isPending, router]);
+  }, [session, isPending, router, params.id]);
 
   useEffect(() => {
     if (session?.user && params.id) {
       fetchWorkspace();
     }
-  }, [params.id, session]);
+  }, [params.id, session?.user]);
 
   const fetchWorkspace = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("bearer_token");
+      
       const response = await fetch(`/api/workspaces/${params.id}`, {
+        credentials: "include",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
+      
+      if (response.status === 401) {
+        console.error("Authentication failed - redirecting to login");
+        router.push("/login?redirect=" + encodeURIComponent(`/workspace/${params.id}`));
+        return;
+      }
       
       if (response.ok) {
         const data = await response.json();
         setWorkspace(data);
       } else {
-        router.push("/dashboard");
+        const errorData = await response.json();
+        console.error("Failed to fetch workspace:", errorData);
+        
+        if (response.status === 404 || response.status === 403) {
+          router.push("/dashboard");
+        }
       }
     } catch (error) {
-      console.error("Failed to fetch workspace:", error);
+      console.error("Error fetching workspace:", error);
       router.push("/dashboard");
     } finally {
       setLoading(false);
@@ -73,7 +84,6 @@ export default function WorkspacePage() {
     { id: "evaluation" as TabType, label: "Model Evaluation", icon: BarChart3, description: "Metrics, charts & confusion matrix", gradient: "from-orange-500 to-red-500" },
     { id: "metadata" as TabType, label: "Model Info", icon: SettingsIcon, description: "Download & retrain models", gradient: "from-indigo-500 to-purple-500" },
     { id: "nlu-chatbot" as TabType, label: "NLU Chatbot", icon: MessageSquare, description: "RASA-powered chatbot", gradient: "from-teal-500 to-cyan-500" },
-    { id: "annotation" as TabType, label: "Annotation Tool", icon: FileText, description: "Label intents & entities", gradient: "from-pink-500 to-rose-500" },
   ];
 
   if (isPending || loading) {
@@ -200,7 +210,6 @@ export default function WorkspacePage() {
                 {activeTab === "predict" && <ModelPrediction workspaceId={params.id as string} />}
                 {activeTab === "evaluation" && <ModelEvaluation workspaceId={params.id as string} />}
                 {activeTab === "nlu-chatbot" && <NLUChatbot workspaceId={params.id as string} />}
-                {activeTab === "annotation" && <AnnotationTool workspaceId={params.id as string} />}
                 {activeTab === "metadata" && <ModelMetadata workspaceId={params.id as string} />}
               </div>
             </div>

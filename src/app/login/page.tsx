@@ -1,41 +1,59 @@
 "use client";
 
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { authClient, useSession } from "@/lib/auth-client";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2, Brain, Lock, Mail } from "lucide-react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+  const { refetch } = useSession();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
-    const { error: authError } = await authClient.signIn.email({
-      email: formData.email,
-      password: formData.password,
-      rememberMe: formData.rememberMe,
-      callbackURL: "/dashboard",
-    });
+    const redirectTo = searchParams.get("redirect") || "/dashboard";
 
-    if (authError?.code) {
-      setError("Invalid email or password. Please make sure you have already registered an account and try again.");
+    try {
+      const result = await authClient.signIn.email({
+        email: formData.email,
+        password: formData.password,
+        rememberMe: formData.rememberMe,
+      });
+
+      if (result.error) {
+        toast.error("Invalid email or password. Please make sure you have already registered an account and try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Refetch session to ensure it's established
+      await refetch();
+      
+      toast.success("Welcome back!");
+      
+      // Small delay to ensure session is fully propagated
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Use router.push for proper Next.js navigation with session
+      router.push(redirectTo);
+      
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error("An error occurred during sign in");
       setIsLoading(false);
-      return;
     }
-
-    router.push("/dashboard");
   };
 
   return (
@@ -110,12 +128,6 @@ export default function LoginPage() {
                 </label>
               </div>
 
-              {error && (
-                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium">
-                  {error}
-                </div>
-              )}
-
               <button
                 type="submit"
                 disabled={isLoading}
@@ -141,7 +153,6 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Demo Account Info */}
             <div className="mt-6 pt-6 border-t-2 border-border">
               <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
                 <p className="text-sm font-bold text-blue-900 mb-2">Demo Account</p>
@@ -153,7 +164,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Back to home */}
           <div className="text-center mt-6">
             <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               ← Back to home

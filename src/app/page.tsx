@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
-import { Brain, Upload, Cpu, LineChart, MessageSquare, Tag, ArrowRight, CheckCircle2, Zap, Shield, Sparkles } from "lucide-react";
+import { Brain, Upload, Cpu, LineChart, MessageSquare, ArrowRight, CheckCircle2, Zap, Shield, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -17,15 +17,15 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Enhanced Parallax Background - Properly Contained */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 relative overflow-hidden">
+      {/* Enhanced Parallax Background - Much More Visible */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Soft gradient base */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-purple-50/50 to-pink-50/30" />
+        {/* Much stronger gradient base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-200/70 via-purple-200/50 to-pink-200/40" />
         
-        {/* Neural network - top right, properly contained */}
+        {/* Neural network - top right, much more visible */}
         <div 
-          className="absolute top-0 right-0 w-[500px] h-[500px] opacity-[0.08]"
+          className="absolute top-0 right-0 w-[600px] h-[600px] opacity-35"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-technology-background-with-neur-9f595ec8-20251110172318.jpg')`,
             backgroundSize: 'cover',
@@ -35,9 +35,9 @@ export default function Home() {
           }}
         />
 
-        {/* AI brain - bottom left, properly contained */}
+        {/* AI brain - bottom left, much more visible */}
         <div 
-          className="absolute bottom-0 left-0 w-[450px] h-[450px] opacity-[0.06]"
+          className="absolute bottom-0 left-0 w-[550px] h-[550px] opacity-30"
           style={{
             backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/abstract-artificial-intelligence-brain-n-872b5f5a-20251110172318.jpg')`,
             backgroundSize: 'cover',
@@ -47,13 +47,13 @@ export default function Home() {
           }}
         />
 
-        {/* Decorative gradient orbs - contained */}
-        <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl" />
+        {/* Decorative gradient orbs - much more visible */}
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 left-1/3 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl" />
       </div>
 
-      {/* Navigation - Enhanced Contrast */}
-      <nav className="border-b-2 border-gray-200 bg-white/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+      {/* Navigation - More transparent */}
+      <nav className="border-b-2 border-gray-200/50 bg-white/85 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
@@ -91,8 +91,8 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section - Enhanced Design */}
-      <section className="relative py-16 sm:py-24 bg-white z-10">
+      {/* Hero Section - Much more transparent */}
+      <section className="relative py-16 sm:py-24 bg-white/50 backdrop-blur-sm z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8" style={{ animation: 'fadeInUp 0.8s ease-out' }}>
@@ -143,7 +143,7 @@ export default function Home() {
               <div className="absolute -inset-4 bg-gradient-to-br from-blue-400/20 to-purple-500/20 rounded-3xl blur-2xl" />
               <div className="relative bg-white p-3 rounded-2xl shadow-2xl border-2 border-gray-200">
                 <Image
-                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-professional-nlu-ml-platform-dash-3441cf8f-20251110175143.jpg"
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/b684e359-c557-4912-a860-690f2785ae8e/generated_images/professional-modern-workspace-dashboard--3d2eb2e3-20251113170936.jpg"
                   alt="NLU ML Platform Dashboard"
                   width={800}
                   height={600}
@@ -156,8 +156,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section - Enhanced Cards */}
-      <section id="features" className="py-20 bg-gradient-to-b from-white to-gray-50 relative z-10">
+      {/* Features Section - Much more transparent */}
+      <section id="features" className="py-20 bg-white/40 backdrop-blur-sm relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 border-2 border-purple-200 rounded-full mb-4">
@@ -214,14 +214,6 @@ export default function Home() {
                 gradient: "from-teal-500 to-cyan-500",
                 bgGradient: "from-teal-50 to-cyan-50"
               },
-              {
-                title: "NLU Annotation Tool",
-                icon: Tag,
-                description: "Label intents and entities with an intuitive annotation interface. Improve your chatbot's understanding.",
-                image: "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-professional-nlu-ml-platform-dash-3441cf8f-20251110175143.jpg",
-                gradient: "from-pink-500 to-rose-500",
-                bgGradient: "from-pink-50 to-rose-50"
-              },
             ].map((feature, index) => (
               <div 
                 key={index}
@@ -249,8 +241,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works Section with Images */}
-      <section className="py-20 bg-white relative z-10">
+      {/* How It Works Section - Much more transparent */}
+      <section className="py-20 bg-white/50 backdrop-blur-sm relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border-2 border-green-200 rounded-full mb-4">
@@ -265,7 +257,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Visual workflow with images */}
+          {/* Visual workflow */}
           <div className="space-y-16">
             {/* Step 1 */}
             <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -410,8 +402,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white relative z-10">
+      {/* Benefits Section - Much more transparent */}
+      <section className="py-20 bg-white/40 backdrop-blur-sm relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="order-2 lg:order-1">
@@ -428,7 +420,6 @@ export default function Home() {
                   { title: "RASA Integration", description: "Industry-standard NLU framework for conversational AI", icon: MessageSquare },
                   { title: "Model Export", description: "Download trained models as .pickle or .h5 files for deployment", icon: Upload },
                   { title: "Comprehensive Metrics", description: "Track accuracy, precision, recall, F1-score, and confusion matrices", icon: LineChart },
-                  { title: "Annotation Tools", description: "Label intents and entities to improve chatbot understanding", icon: Tag },
                   { title: "Retraining Support", description: "Continuously improve your models with new data", icon: Brain },
                 ].map((benefit, index) => (
                   <div key={index} className="flex gap-4 p-5 rounded-xl bg-white border-2 border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all">
@@ -461,8 +452,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-white relative z-10">
+      {/* CTA Section - More transparent */}
+      <section className="py-20 bg-white/50 backdrop-blur-sm relative z-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl" />
@@ -486,8 +477,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-white border-t-2 border-gray-200 py-12 relative z-10">
+      {/* Footer - More transparent */}
+      <footer className="bg-white/70 backdrop-blur-sm border-t-2 border-gray-200/50 py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>

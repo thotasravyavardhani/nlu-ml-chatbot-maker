@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2, Brain, Lock, Mail, User } from "lucide-react";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,41 +17,50 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match");
       setIsLoading(false);
       return;
     }
 
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long");
+      toast.error("Password must be at least 8 characters long");
       setIsLoading(false);
       return;
     }
 
-    const { error: authError } = await authClient.signUp.email({
-      email: formData.email,
-      name: formData.name,
-      password: formData.password,
-    });
+    try {
+      // NEVER use callbackURL - handle redirect manually
+      const result = await authClient.signUp.email({
+        email: formData.email,
+        name: formData.name,
+        password: formData.password,
+      });
 
-    if (authError?.code) {
-      const errorMessages: Record<string, string> = {
-        USER_ALREADY_EXISTS: "An account with this email already exists",
-      };
-      setError(errorMessages[authError.code] || "Registration failed. Please try again.");
+      if (result.error?.code) {
+        const errorMessages: Record<string, string> = {
+          USER_ALREADY_EXISTS: "An account with this email already exists",
+        };
+        toast.error(errorMessages[result.error.code] || "Registration failed. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Success - manually redirect
+      toast.success("Account created successfully! Please sign in.");
+      setTimeout(() => {
+        window.location.href = "/login?registered=true";
+      }, 100);
+      
+    } catch (err) {
+      toast.error("An error occurred during registration");
       setIsLoading(false);
-      return;
     }
-
-    router.push("/login?registered=true");
   };
 
   return (
@@ -173,12 +183,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {error && (
-                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium">
-                  {error}
-                </div>
-              )}
-
               <button
                 type="submit"
                 disabled={isLoading}
@@ -205,7 +209,6 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Back to home */}
           <div className="text-center mt-6">
             <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               ← Back to home
