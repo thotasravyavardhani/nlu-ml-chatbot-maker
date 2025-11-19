@@ -1,40 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { mlModels, session } from '@/db/schema';
+import { mlModels } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-
-async function validateSession(request: NextRequest) {
-  const authHeader = request.headers.get('Authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-
-  const token = authHeader.substring(7);
-
-  try {
-    const sessionRecord = await db
-      .select()
-      .from(session)
-      .where(eq(session.token, token))
-      .limit(1);
-
-    if (sessionRecord.length === 0) {
-      return null;
-    }
-
-    const sess = sessionRecord[0];
-    
-    if (new Date(sess.expiresAt) < new Date()) {
-      return null;
-    }
-
-    return { userId: sess.userId };
-  } catch (error) {
-    console.error('Session validation error:', error);
-    return null;
-  }
-}
+import { validateSessionFromCookies } from '@/lib/auth-helpers';
 
 // Simulate ML model prediction with realistic results
 function simulatePrediction(input: Record<string, any>, algorithmType: string, targetColumn: string) {
@@ -62,13 +30,14 @@ function simulatePrediction(input: Record<string, any>, algorithmType: string, t
   return {
     input,
     prediction,
+    predicted_class: prediction,
     confidence: Math.min(confidence, 0.99),
   };
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await validateSession(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -128,37 +97,56 @@ export async function POST(request: NextRequest) {
     }
 
     // Try Python ML service first
-    const pythonServiceUrl = process.env.ML_SERVICE_URL;
+    const pythonServiceUrl = process.env.ML_SERVICE_URL || 'http://localhost:8000';
     let predictions;
     let usePythonBackend = false;
 
-    if (pythonServiceUrl && modelData.modelFilePath && !modelData.modelFilePath.includes('simulated')) {
+    if (modelData.modelFilePath && !modelData.modelFilePath.includes('simulated')) {
       try {
+        console.log('🔄 Calling Python ML Backend for prediction...');
+        console.log('Model file:', modelData.modelFilePath);
+        console.log('Input data:', JSON.stringify(data, null, 2));
+        
+        const pythonPayload = {
+          model_path: modelData.modelFilePath,
+          data: data
+        };
+        
+        console.log('Python request payload:', JSON.stringify(pythonPayload, null, 2));
+        
         const pythonResponse = await fetch(`${pythonServiceUrl}/predict`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model_path: modelData.modelFilePath,
-            data: data,
-          }),
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(pythonPayload),
         });
 
+        console.log('Python response status:', pythonResponse.status);
+        const responseText = await pythonResponse.text();
+        console.log('Python response body:', responseText);
+
         if (pythonResponse.ok) {
-          const pythonData = await pythonResponse.json();
+          const pythonData = JSON.parse(responseText);
           predictions = pythonData.predictions;
           usePythonBackend = true;
-          console.log('✅ Using Python ML Backend for prediction');
+          console.log('✅ Using Python ML Backend');
+          console.log('Predictions:', JSON.stringify(predictions, null, 2));
         } else {
-          console.warn('Python ML service unavailable for prediction, using simulation');
+          console.warn('❌ Python ML service error:', pythonResponse.status);
+          console.warn('Error details:', responseText);
+          console.warn('Falling back to simulation');
         }
       } catch (error) {
-        console.warn('Python ML service error for prediction, using simulation:', error);
+        console.warn('❌ Python ML service connection failed:', error);
+        console.warn('Falling back to simulation');
       }
     }
 
     // Fallback to simulation
     if (!usePythonBackend) {
-      console.log('⚠️ Using Simulation Mode for prediction');
+      console.log('⚠️ Using Simulation Mode');
       predictions = data.map(sample => 
         simulatePrediction(sample, modelData.algorithmType, modelData.targetColumn)
       );
@@ -175,7 +163,7 @@ export async function POST(request: NextRequest) {
     }, { status: 200 });
 
   } catch (error) {
-    console.error('Prediction error:', error);
+    console.error('❌ Prediction error:', error);
     return NextResponse.json(
       { error: 'Internal server error: ' + (error as Error).message },
       { status: 500 }

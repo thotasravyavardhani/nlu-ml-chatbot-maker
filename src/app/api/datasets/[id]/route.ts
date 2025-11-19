@@ -1,47 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { datasets, workspaces, session } from '@/db/schema';
+import { datasets, workspaces } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
-
-async function authenticateRequest(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return null;
-    }
-
-    const token = authHeader.substring(7);
-    
-    const sessions = await db
-      .select()
-      .from(session)
-      .where(eq(session.token, token))
-      .limit(1);
-
-    if (sessions.length === 0) {
-      return null;
-    }
-
-    const userSession = sessions[0];
-    
-    if (userSession.expiresAt < new Date()) {
-      return null;
-    }
-
-    return userSession.userId;
-  } catch (error) {
-    console.error('Authentication error:', error);
-    return null;
-  }
-}
+import { validateSessionFromCookies } from '@/lib/auth-helpers';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = await authenticateRequest(request);
-    if (!userId) {
+    const user = await validateSessionFromCookies(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
         { status: 401 }
@@ -69,7 +38,7 @@ export async function GET(
       .where(
         and(
           eq(datasets.id, datasetId),
-          eq(workspaces.userId, userId)
+          eq(workspaces.userId, user.userId)
         )
       )
       .limit(1);
@@ -98,8 +67,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = await authenticateRequest(request);
-    if (!userId) {
+    const user = await validateSessionFromCookies(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
         { status: 401 }
@@ -127,7 +96,7 @@ export async function DELETE(
       .where(
         and(
           eq(datasets.id, datasetId),
-          eq(workspaces.userId, userId)
+          eq(workspaces.userId, user.userId)
         )
       )
       .limit(1);

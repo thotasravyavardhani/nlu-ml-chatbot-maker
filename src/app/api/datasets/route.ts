@@ -1,40 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { datasets, workspaces, session } from '@/db/schema';
+import { datasets, workspaces } from '@/db/schema';
 import { eq, like, and, desc } from 'drizzle-orm';
-
-async function validateSession(request: NextRequest) {
-  const authHeader = request.headers.get('Authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-
-  const token = authHeader.substring(7);
-
-  try {
-    const sessionRecord = await db
-      .select()
-      .from(session)
-      .where(eq(session.token, token))
-      .limit(1);
-
-    if (sessionRecord.length === 0) {
-      return null;
-    }
-
-    const sess = sessionRecord[0];
-    
-    if (new Date(sess.expiresAt) < new Date()) {
-      return null;
-    }
-
-    return { userId: sess.userId };
-  } catch (error) {
-    console.error('Session validation error:', error);
-    return null;
-  }
-}
+import { validateSessionFromCookies } from '@/lib/auth-helpers';
 
 async function validateWorkspaceOwnership(workspaceId: number, userId: string) {
   try {
@@ -61,7 +29,7 @@ async function validateWorkspaceOwnership(workspaceId: number, userId: string) {
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await validateSession(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
@@ -141,7 +109,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await validateSession(request);
+    const user = await validateSessionFromCookies(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'UNAUTHORIZED' },
