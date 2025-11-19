@@ -25,6 +25,22 @@ os.makedirs('uploads', exist_ok=True)
 os.makedirs('models', exist_ok=True)
 os.makedirs('rasa_models', exist_ok=True)
 
+@app.route('/', methods=['GET'])
+def index():
+    """Root endpoint - Welcome message"""
+    return jsonify({
+        'message': 'NLU Studio Python ML Backend',
+        'version': '1.0.0',
+        'status': 'running',
+        'endpoints': {
+            'health': '/health',
+            'datasets': '/api/datasets/*',
+            'ml': '/api/ml/*',
+            'models': '/api/models/*',
+            'rasa': '/api/rasa/*'
+        }
+    }), 200
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -179,13 +195,30 @@ def export_model():
         if 'model_path' not in data or 'export_format' not in data:
             return jsonify({'error': 'model_path and export_format are required'}), 400
         
-        result = ml_service.export_model(
-            model_path=data['model_path'],
-            export_format=data['export_format'],
-            output_name=data.get('output_name', 'model')
-        )
+        model_path = data['model_path']
+        export_format = data['export_format']
         
-        return jsonify(result), 200
+        # Validate format
+        if export_format not in ['pickle', 'h5']:
+            return jsonify({'error': 'export_format must be "pickle" or "h5"'}), 400
+        
+        # Check if model file exists
+        if not os.path.exists(model_path):
+            return jsonify({'error': f'Model file not found: {model_path}'}), 404
+        
+        # For pickle format, return the file directly
+        if export_format == 'pickle':
+            from flask import send_file
+            return send_file(
+                model_path,
+                mimetype='application/octet-stream',
+                as_attachment=True,
+                download_name=os.path.basename(model_path)
+            )
+        
+        # For h5 format, we'd need to convert (not implemented for sklearn models)
+        elif export_format == 'h5':
+            return jsonify({'error': 'H5 export not supported for sklearn models'}), 400
     
     except Exception as e:
         logger.error(f"Error exporting model: {str(e)}")
