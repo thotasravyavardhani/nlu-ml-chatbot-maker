@@ -3,7 +3,43 @@ import { NextRequest } from 'next/server';
 import { db } from '@/db';
 import { session } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { betterFetch } from '@better-fetch/fetch';
 
+/**
+ * Validates user session from cookies (recommended for API routes)
+ * Returns user object if authenticated, null otherwise
+ */
+export async function validateSessionFromCookies(request: NextRequest) {
+  try {
+    const { data: sessionData } = await betterFetch<any>(
+      "/api/auth/get-session",
+      {
+        baseURL: request.nextUrl.origin,
+        headers: {
+          cookie: request.headers.get("cookie") || "",
+        },
+      }
+    );
+
+    if (!sessionData?.user) {
+      return null;
+    }
+
+    return {
+      userId: sessionData.user.id,
+      email: sessionData.user.email,
+      name: sessionData.user.name,
+    };
+  } catch (error) {
+    console.error('Session validation error:', error);
+    return null;
+  }
+}
+
+/**
+ * @deprecated Use validateSessionFromCookies instead
+ * Legacy function for Bearer token authentication
+ */
 export async function getCurrentUser(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');

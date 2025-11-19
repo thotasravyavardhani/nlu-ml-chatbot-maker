@@ -1,27 +1,35 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { betterFetch } from "@better-fetch/fetch";
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get('auth-token')?.value;
-  const { pathname } = request.nextUrl;
+export default async function middleware(request: NextRequest) {
+  try {
+    const { data: session } = await betterFetch<any>(
+      "/api/auth/get-session",
+      {
+        baseURL: request.nextUrl.origin,
+        headers: {
+          cookie: request.headers.get("cookie") || "",
+        },
+      }
+    );
 
-  // Protected routes
-  const protectedRoutes = ['/dashboard', '/workspace', '/settings', '/profile'];
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+    // If no session exists, redirect to login
+    if (!session?.user) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
+    }
 
-  // If accessing protected route without token, redirect to signin
-  if (isProtectedRoute && !token) {
-    return NextResponse.redirect(new URL('/signin', request.url));
+    // Allow request to proceed if authenticated
+    return NextResponse.next();
+  } catch (error) {
+    // On error, redirect to login
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
-
-  // If accessing signin/register with token, redirect to dashboard
-  if ((pathname === '/signin' || pathname === '/register') && token) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/workspace/:path*', '/settings/:path*', '/profile/:path*', '/signin', '/register'],
+  matcher: ["/dashboard/:path*", "/workspace/:path*", "/profile/:path*", "/settings/:path*"],
 };

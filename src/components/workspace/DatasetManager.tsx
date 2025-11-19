@@ -30,11 +30,8 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
   const fetchDatasets = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch(`/api/datasets?workspaceId=${workspaceId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -71,12 +68,9 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
     formData.append("workspaceId", workspaceId);
 
     try {
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch("/api/datasets/upload", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
         body: formData,
       });
 
@@ -128,20 +122,35 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Dataset Management</h2>
-        <p className="text-muted-foreground">
-          Upload and manage your datasets in CSV, JSON, or YML format for ML training
-        </p>
+    <div className="space-y-6 relative">
+      {/* Hero Background Section */}
+      <div className="relative overflow-hidden rounded-2xl">
+        <div 
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/b684e359-c557-4912-a860-690f2785ae8e/generated_images/abstract-minimalist-data-visualization-b-7554a8bd-20251113171102.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="relative bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-8 border-2 border-border">
+          <div className="max-w-3xl">
+            <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Dataset Management
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Upload and manage your datasets in CSV, JSON, or YML format for ML training
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Upload Section */}
-      <Card className="p-6">
+      <Card className="p-6 border-2">
         <div className="space-y-4">
           <div>
-            <Label>Upload Dataset</Label>
-            <div className="mt-2 flex gap-4 items-center">
+            <Label className="text-base font-semibold">Upload Dataset</Label>
+            <div className="mt-3 flex gap-4 items-center">
               <Input
                 ref={fileInputRef}
                 type="file"
@@ -153,6 +162,8 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
               <Button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
                 {uploading ? (
                   <>
@@ -167,7 +178,7 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
                 )}
               </Button>
               {selectedDataset && (
-                <Button variant="outline" onClick={handleDownload}>
+                <Button variant="outline" size="lg" onClick={handleDownload}>
                   <Download className="w-4 h-4 mr-2" />
                   Download
                 </Button>
@@ -175,15 +186,15 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
             </div>
           </div>
 
-          <div className="bg-muted/30 p-4 rounded-lg">
-            <div className="flex gap-2 text-sm text-muted-foreground">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <div className="bg-muted/50 p-5 rounded-xl border-2 border-border">
+            <div className="flex gap-3 text-sm text-muted-foreground">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-primary" />
               <div>
-                <p className="font-medium text-foreground mb-1">Supported Formats:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li><strong>CSV</strong> - Comma-separated values with headers</li>
-                  <li><strong>JSON</strong> - Array of objects or single object</li>
-                  <li><strong>YML/YAML</strong> - YAML structured data</li>
+                <p className="font-semibold text-foreground mb-2">Supported Formats:</p>
+                <ul className="list-disc list-inside space-y-1.5">
+                  <li><strong className="text-foreground">CSV</strong> - Comma-separated values with headers</li>
+                  <li><strong className="text-foreground">JSON</strong> - Array of objects or single object</li>
+                  <li><strong className="text-foreground">YML/YAML</strong> - YAML structured data</li>
                   <li>Maximum file size: 100MB</li>
                   <li>Supports large datasets for ML training</li>
                 </ul>
@@ -195,8 +206,8 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
 
       {/* Dataset Selection */}
       {datasets.length > 0 && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Available Datasets ({datasets.length})</h3>
+        <Card className="p-6 border-2">
+          <h3 className="text-lg font-bold mb-4">Available Datasets ({datasets.length})</h3>
           <div className="grid gap-3">
             {datasets.map((dataset) => (
               <div
@@ -207,23 +218,25 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
                     setColumns(Array.isArray(dataset.columnsJson) ? dataset.columnsJson : JSON.parse(dataset.columnsJson));
                   }
                 }}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition ${
+                className={`p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg ${
                   selectedDataset?.id === dataset.id
-                    ? "border-primary bg-primary/5"
+                    ? "border-primary bg-gradient-to-r from-primary/10 to-purple-500/10 shadow-md"
                     : "border-border hover:border-primary/50"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {getFileIcon(dataset.fileFormat || 'csv')}
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      {getFileIcon(dataset.fileFormat || 'csv')}
+                    </div>
                     <div>
-                      <p className="font-semibold">{dataset.name}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-bold text-base">{dataset.name}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
                         {dataset.rowCount?.toLocaleString()} rows • {dataset.columnCount} columns • {dataset.fileFormat?.toUpperCase() || 'CSV'}
                       </p>
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm font-semibold text-muted-foreground">
                     {(dataset.fileSize / 1024).toFixed(2)} KB
                   </div>
                 </div>
@@ -235,28 +248,28 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
 
       {/* Dataset Info */}
       {selectedDataset && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Dataset Information</h3>
+        <Card className="p-6 border-2 bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+          <h3 className="text-lg font-bold mb-4">Dataset Information</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Name</p>
-              <p className="font-medium">{selectedDataset.name}</p>
+            <div className="p-4 bg-white dark:bg-card rounded-xl border-2 border-border">
+              <p className="text-xs text-muted-foreground mb-1">Name</p>
+              <p className="font-bold">{selectedDataset.name}</p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Format</p>
-              <p className="font-medium uppercase">{selectedDataset.fileFormat || 'CSV'}</p>
+            <div className="p-4 bg-white dark:bg-card rounded-xl border-2 border-border">
+              <p className="text-xs text-muted-foreground mb-1">Format</p>
+              <p className="font-bold uppercase">{selectedDataset.fileFormat || 'CSV'}</p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Rows</p>
-              <p className="font-medium">{selectedDataset.rowCount?.toLocaleString()}</p>
+            <div className="p-4 bg-white dark:bg-card rounded-xl border-2 border-border">
+              <p className="text-xs text-muted-foreground mb-1">Rows</p>
+              <p className="font-bold">{selectedDataset.rowCount?.toLocaleString()}</p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Columns</p>
-              <p className="font-medium">{selectedDataset.columnCount}</p>
+            <div className="p-4 bg-white dark:bg-card rounded-xl border-2 border-border">
+              <p className="text-xs text-muted-foreground mb-1">Columns</p>
+              <p className="font-bold">{selectedDataset.columnCount}</p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Size</p>
-              <p className="font-medium">{(selectedDataset.fileSize / 1024).toFixed(2)} KB</p>
+            <div className="p-4 bg-white dark:bg-card rounded-xl border-2 border-border">
+              <p className="text-xs text-muted-foreground mb-1">Size</p>
+              <p className="font-bold">{(selectedDataset.fileSize / 1024).toFixed(2)} KB</p>
             </div>
           </div>
         </Card>
@@ -264,13 +277,13 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
 
       {/* Column List */}
       {columns.length > 0 && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Columns ({columns.length})</h3>
+        <Card className="p-6 border-2">
+          <h3 className="text-lg font-bold mb-4">Columns ({columns.length})</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {columns.map((col, idx) => (
-              <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded">
-                <FileText className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium truncate">{col}</span>
+              <div key={idx} className="flex items-center gap-2 p-3 bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl border-2 border-border">
+                <FileText className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-sm font-semibold truncate">{col}</span>
               </div>
             ))}
           </div>
@@ -279,14 +292,14 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
 
       {/* Data Preview */}
       {preview.length > 0 && selectedDataset?.fileFormat !== 'yml' && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Data Preview (First 10 rows)</h3>
-          <ScrollArea className="h-[400px] w-full rounded-md border">
+        <Card className="p-6 border-2">
+          <h3 className="text-lg font-bold mb-4">Data Preview (First 10 rows)</h3>
+          <ScrollArea className="h-[400px] w-full rounded-xl border-2">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-muted/50">
                   {columns.map((col, idx) => (
-                    <TableHead key={idx} className="font-semibold">
+                    <TableHead key={idx} className="font-bold">
                       {col}
                     </TableHead>
                   ))}
@@ -307,13 +320,17 @@ export default function DatasetManager({ workspaceId }: DatasetManagerProps) {
       )}
 
       {!selectedDataset && !uploading && datasets.length === 0 && (
-        <Card className="p-12 text-center">
-          <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No dataset uploaded</h3>
-          <p className="text-muted-foreground mb-4">
+        <Card className="p-12 text-center border-2">
+          <FileText className="w-20 h-20 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-2xl font-bold mb-2">No dataset uploaded</h3>
+          <p className="text-muted-foreground mb-6 text-lg">
             Upload a CSV, JSON, or YML file to get started with ML training
           </p>
-          <Button onClick={() => fileInputRef.current?.click()}>
+          <Button 
+            onClick={() => fileInputRef.current?.click()}
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
             <Upload className="w-4 h-4 mr-2" />
             Upload Your First Dataset
           </Button>

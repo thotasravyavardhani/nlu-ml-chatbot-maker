@@ -38,9 +38,14 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
   useEffect(() => {
     if (selectedModel) {
       fetchModelDetails();
-      initializeSingleInput();
     }
   }, [selectedModel]);
+
+  useEffect(() => {
+    if (modelData) {
+      initializeSingleInput();
+    }
+  }, [modelData]);
 
   const checkBackendStatus = async () => {
     try {
@@ -57,11 +62,8 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
   const fetchModels = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch(`/api/ml-models?workspaceId=${workspaceId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -81,11 +83,8 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
 
   const fetchModelDetails = async () => {
     try {
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch(`/api/ml-models/${selectedModel}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -130,12 +129,11 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
     setPredictions([]);
 
     try {
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch("/api/ml-models/predict", {
         method: "POST",
+        credentials: "include",
         headers: { 
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           modelId: selectedModel,
@@ -192,12 +190,11 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
     setPredictions([]);
 
     try {
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch("/api/ml-models/predict", {
         method: "POST",
+        credentials: "include",
         headers: { 
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           modelId: selectedModel,
@@ -254,30 +251,45 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Model Testing & Prediction</h2>
-        <p className="text-muted-foreground">
-          Test trained models with new data and get real-time predictions
-        </p>
+    <div className="space-y-6 relative">
+      {/* Hero Background Section */}
+      <div className="relative overflow-hidden rounded-2xl">
+        <div 
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: `url('https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/b684e359-c557-4912-a860-690f2785ae8e/generated_images/abstract-prediction-and-testing-backgrou-e1bceec9-20251113171103.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="relative bg-gradient-to-br from-green-500/10 to-emerald-500/10 p-8 border-2 border-border">
+          <div className="max-w-3xl">
+            <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              Model Testing & Prediction
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Test trained models with new data and get real-time predictions
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Backend Status */}
       {backendStatus && (
-        <Card className="p-4">
+        <Card className="p-5 border-2">
           <div className="flex items-center gap-2 mb-3">
-            <Server className="w-4 h-4" />
-            <span className="font-semibold text-sm">Python ML Backend Status</span>
+            <Server className="w-5 h-5" />
+            <span className="font-bold">Python ML Backend Status</span>
           </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className={`w-2 h-2 rounded-full ${backendStatus.mlService.available ? 'bg-green-500' : 'bg-yellow-500'}`} />
-            <span>ML Service: {backendStatus.mlService.available ? 'Connected' : 'Simulation Mode'}</span>
+          <div className="flex items-center gap-2 text-sm">
+            <div className={`w-2.5 h-2.5 rounded-full ${backendStatus.mlService.available ? 'bg-green-500' : 'bg-yellow-500'}`} />
+            <span className="font-semibold">ML Service: {backendStatus.mlService.available ? 'Connected' : 'Simulation Mode'}</span>
           </div>
           {!backendStatus.mlService.available && (
-            <div className="mt-3 p-2 bg-yellow-500/10 rounded flex items-start gap-2 text-xs">
-              <AlertCircle className="w-3 h-3 text-yellow-500 mt-0.5 flex-shrink-0" />
-              <span className="text-yellow-700 dark:text-yellow-300">
-                Python ML backend not connected. Using simulation mode. See <code className="px-1 bg-background rounded">PYTHON_BACKEND_SETUP.md</code> to set up real Python ML service.
+            <div className="mt-3 p-3 bg-yellow-500/10 rounded-xl flex items-start gap-2 text-sm border-2 border-yellow-500/20">
+              <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <span className="text-yellow-700 dark:text-yellow-300 font-medium">
+                Python ML backend not connected. Using simulation mode. See <code className="px-1.5 py-0.5 bg-background rounded font-mono text-xs">PYTHON_BACKEND_SETUP.md</code> to set up real Python ML service.
               </span>
             </div>
           )}
@@ -285,7 +297,7 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
       )}
 
       {/* Model Selection */}
-      <Card className="p-6">
+      <Card className="p-6 border-2">
         <Label className="text-base font-semibold mb-3 block">Select Model</Label>
         <Select value={selectedModel} onValueChange={setSelectedModel}>
           <SelectTrigger>
@@ -302,23 +314,23 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
         </Select>
 
         {modelData && (
-          <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+          <div className="mt-4 p-5 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-xl border-2 border-border">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground mb-1">Algorithm</p>
-                <p className="font-semibold capitalize">{modelData.algorithmType.replace(/_/g, " ")}</p>
+                <p className="text-muted-foreground mb-1 font-semibold">Algorithm</p>
+                <p className="font-bold capitalize">{modelData.algorithmType.replace(/_/g, " ")}</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-1">Target Column</p>
-                <p className="font-semibold">{modelData.targetColumn}</p>
+                <p className="text-muted-foreground mb-1 font-semibold">Target Column</p>
+                <p className="font-bold">{modelData.targetColumn}</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-1">Accuracy</p>
-                <p className="font-semibold">{(modelData.accuracy * 100).toFixed(2)}%</p>
+                <p className="text-muted-foreground mb-1 font-semibold">Accuracy</p>
+                <p className="font-bold">{(modelData.accuracy * 100).toFixed(2)}%</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-1">Features</p>
-                <p className="font-semibold">{featureColumns.length} columns</p>
+                <p className="text-muted-foreground mb-1 font-semibold">Features</p>
+                <p className="font-bold">{featureColumns.length} columns</p>
               </div>
             </div>
           </div>
@@ -327,31 +339,31 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
 
       {/* Input Mode Selection */}
       {selectedModel && (
-        <Card className="p-6">
-          <Label className="text-base font-semibold mb-3 block">Input Mode</Label>
+        <Card className="p-6 border-2">
+          <Label className="text-base font-semibold mb-4 block">Input Mode</Label>
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => setInputMode("single")}
-              className={`p-4 rounded-lg border-2 transition text-left ${
+              className={`p-6 rounded-xl border-2 transition-all text-left hover:shadow-lg ${
                 inputMode === "single"
-                  ? "border-primary bg-primary/5"
+                  ? "border-primary bg-gradient-to-r from-primary/10 to-green-500/10 shadow-md"
                   : "border-border hover:border-primary/50"
               }`}
             >
-              <Target className="w-6 h-6 text-primary mb-2" />
-              <p className="font-semibold">Single Prediction</p>
+              <Target className="w-7 h-7 text-primary mb-3" />
+              <p className="font-bold text-base mb-1">Single Prediction</p>
               <p className="text-sm text-muted-foreground">Enter values manually</p>
             </button>
             <button
               onClick={() => setInputMode("batch")}
-              className={`p-4 rounded-lg border-2 transition text-left ${
+              className={`p-6 rounded-xl border-2 transition-all text-left hover:shadow-lg ${
                 inputMode === "batch"
-                  ? "border-primary bg-primary/5"
+                  ? "border-primary bg-gradient-to-r from-primary/10 to-green-500/10 shadow-md"
                   : "border-border hover:border-primary/50"
               }`}
             >
-              <FileJson className="w-6 h-6 text-primary mb-2" />
-              <p className="font-semibold">Batch Prediction</p>
+              <FileJson className="w-7 h-7 text-primary mb-3" />
+              <p className="font-bold text-base mb-1">Batch Prediction</p>
               <p className="text-sm text-muted-foreground">Upload JSON data</p>
             </button>
           </div>
@@ -360,17 +372,18 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
 
       {/* Single Input Form */}
       {selectedModel && inputMode === "single" && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Enter Feature Values</h3>
+        <Card className="p-6 border-2">
+          <h3 className="text-lg font-bold mb-4">Enter Feature Values</h3>
           <div className="grid md:grid-cols-2 gap-4 mb-6">
             {featureColumns.map((col: string) => (
               <div key={col}>
-                <Label className="mb-2">{col}</Label>
+                <Label className="mb-2 font-semibold">{col}</Label>
                 <Input
                   type="text"
                   value={singleInput[col] || ""}
                   onChange={(e) => setSingleInput({ ...singleInput, [col]: e.target.value })}
                   placeholder={`Enter ${col}`}
+                  className="mt-1"
                 />
               </div>
             ))}
@@ -379,7 +392,7 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
             onClick={handleSinglePredict}
             disabled={predicting}
             size="lg"
-            className="w-full"
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
           >
             {predicting ? (
               <>
@@ -398,22 +411,22 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
 
       {/* Batch Input Form */}
       {selectedModel && inputMode === "batch" && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Batch Input (JSON Format)</h3>
+        <Card className="p-6 border-2">
+          <h3 className="text-lg font-bold mb-4">Batch Input (JSON Format)</h3>
           <div className="space-y-4">
             <div>
-              <Label className="mb-2">Paste JSON Array</Label>
+              <Label className="mb-2 font-semibold">Paste JSON Array</Label>
               <Textarea
                 rows={10}
                 value={batchInput}
                 onChange={(e) => setBatchInput(e.target.value)}
                 placeholder={`[\n  ${JSON.stringify(featureColumns.reduce((acc: any, col: string) => ({ ...acc, [col]: "" }), {}), null, 2).split('\n').join('\n  ')},\n  ...\n]`}
-                className="font-mono text-sm"
+                className="font-mono text-sm mt-1"
               />
             </div>
-            <div className="bg-muted/30 p-3 rounded-lg text-sm">
-              <p className="font-medium mb-1">Expected Format:</p>
-              <code className="text-xs">
+            <div className="bg-muted/50 p-4 rounded-xl text-sm border-2 border-border">
+              <p className="font-semibold mb-2">Expected Format:</p>
+              <code className="text-xs font-mono">
                 [{featureColumns.map((col: string) => `"${col}": "value"`).join(", ")}]
               </code>
             </div>
@@ -421,7 +434,7 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
               onClick={handleBatchPredict}
               disabled={predicting}
               size="lg"
-              className="w-full"
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
             >
               {predicting ? (
                 <>
@@ -441,12 +454,12 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
 
       {/* Prediction Results */}
       {predictions.length > 0 && (
-        <Card className="p-6">
+        <Card className="p-6 border-2">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold">Prediction Results ({predictions.length})</h3>
+              <h3 className="text-lg font-bold">Prediction Results ({predictions.length})</h3>
               {lastBackend && (
-                <Badge variant={lastBackend === 'python' ? 'default' : 'secondary'}>
+                <Badge variant={lastBackend === 'python' ? 'default' : 'secondary'} className="font-semibold">
                   {lastBackend === 'python' ? 'Python ML' : 'Simulation'}
                 </Badge>
               )}
@@ -457,34 +470,34 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
             </Button>
           </div>
 
-          <ScrollArea className="h-[400px] rounded-md border">
+          <ScrollArea className="h-[400px] rounded-xl border-2">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16">#</TableHead>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="w-16 font-bold">#</TableHead>
                   {featureColumns.map((col: string) => (
-                    <TableHead key={col}>{col}</TableHead>
+                    <TableHead key={col} className="font-bold">{col}</TableHead>
                   ))}
-                  <TableHead className="font-semibold">
+                  <TableHead className="font-bold">
                     Predicted {modelData?.targetColumn}
                   </TableHead>
-                  <TableHead>Confidence</TableHead>
+                  <TableHead className="font-bold">Confidence</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {predictions.map((pred, idx) => (
                   <TableRow key={idx}>
-                    <TableCell className="font-medium">{idx + 1}</TableCell>
+                    <TableCell className="font-semibold">{idx + 1}</TableCell>
                     {featureColumns.map((col: string) => (
                       <TableCell key={col}>{pred.input[col]}</TableCell>
                     ))}
                     <TableCell>
-                      <Badge variant="default" className="font-semibold">
+                      <Badge variant="default" className="font-bold">
                         {pred.prediction}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={pred.confidence > 0.8 ? "default" : "secondary"}>
+                      <Badge variant={pred.confidence > 0.8 ? "default" : "secondary"} className="font-semibold">
                         {(pred.confidence * 100).toFixed(1)}%
                       </Badge>
                     </TableCell>
@@ -494,21 +507,21 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
             </Table>
           </ScrollArea>
 
-          <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+          <div className="mt-4 p-5 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-xl border-2 border-border">
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground mb-1">Total Predictions</p>
-                <p className="text-xl font-bold">{predictions.length}</p>
+                <p className="text-muted-foreground mb-1 font-semibold">Total Predictions</p>
+                <p className="text-2xl font-bold">{predictions.length}</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-1">Avg Confidence</p>
-                <p className="text-xl font-bold">
+                <p className="text-muted-foreground mb-1 font-semibold">Avg Confidence</p>
+                <p className="text-2xl font-bold">
                   {(predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length * 100).toFixed(1)}%
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-1">High Confidence</p>
-                <p className="text-xl font-bold">
+                <p className="text-muted-foreground mb-1 font-semibold">High Confidence</p>
+                <p className="text-2xl font-bold">
                   {predictions.filter(p => p.confidence > 0.8).length}
                 </p>
               </div>
@@ -518,10 +531,10 @@ export default function ModelPrediction({ workspaceId }: ModelPredictionProps) {
       )}
 
       {models.length === 0 && (
-        <Card className="p-12 text-center">
-          <Brain className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No models available</h3>
-          <p className="text-muted-foreground">
+        <Card className="p-12 text-center border-2">
+          <Brain className="w-20 h-20 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-2xl font-bold mb-2">No models available</h3>
+          <p className="text-muted-foreground text-lg">
             Train a model first to start making predictions
           </p>
         </Card>

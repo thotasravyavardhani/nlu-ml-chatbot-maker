@@ -81,6 +81,7 @@ export const datasets = sqliteTable('datasets', {
   workspaceId: integer('workspace_id').notNull().references(() => workspaces.id),
   name: text('name').notNull(),
   filePath: text('file_path'),
+  fileContent: text('file_content'),
   fileSize: integer('file_size'),
   rowCount: integer('row_count'),
   columnCount: integer('column_count'),

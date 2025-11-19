@@ -32,11 +32,8 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
   const fetchModels = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch(`/api/ml-models?workspaceId=${workspaceId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       });
       if (response.ok) {
         const data = await response.json();
@@ -55,11 +52,8 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
 
   const fetchModelDetails = async () => {
     try {
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch(`/api/ml-models/${selectedModel}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       });
       if (response.ok) {
         const data = await response.json();
@@ -72,8 +66,7 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
 
   const handleDownloadModel = async (format: "pickle" | "h5") => {
     if (!selectedModel) return;
-    const token = localStorage.getItem("bearer_token");
-    window.open(`/api/ml-models/${selectedModel}/download?format=${format}&token=${token}`, "_blank");
+    window.open(`/api/ml-models/${selectedModel}/download?format=${format}`, "_blank");
     toast.success(`Downloading model as ${format.toUpperCase()}...`);
   };
 
@@ -82,12 +75,11 @@ export default function ModelMetadata({ workspaceId }: ModelMetadataProps) {
 
     setRetraining(true);
     try {
-      const token = localStorage.getItem("bearer_token");
       const response = await fetch("/api/ml-models/train", {
         method: "POST",
+        credentials: "include",
         headers: { 
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           workspaceId,
