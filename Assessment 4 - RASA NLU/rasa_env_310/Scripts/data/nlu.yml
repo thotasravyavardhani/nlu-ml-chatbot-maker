@@ -1,0 +1,143 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+    - not really
+
+- intent: mood_great
+  examples: |
+    - perfect
+    - great
+    - amazing
+    - feeling like a king
+    - wonderful
+    - I am feeling very good
+    - I am great
+    - I am amazing
+    - I am going to save the world
+    - super stoked
+    - extremely good
+    - so so perfect
+    - so good
+    - so perfect
+
+- intent: mood_unhappy
+  examples: |
+    - my day was horrible
+    - I am sad
+    - I don't feel very well
+    - I am disappointed
+    - super sad
+    - I'm so sad
+    - sad
+    - very sad
+    - unhappy
+    - not good
+    - not very good
+    - extremly sad
+    - so saad
+    - so sad
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+
+- intent: symptom_report
+  examples: |
+    - I have a [fever](symptom) and a [headache](symptom).
+    - My [throat](symptom) is sore this morning.
+    - I'm feeling sick today, experiencing [nausea](symptom).
+    - I woke up with [chest pain](symptom) and shortness of breath.
+    - My [head](symptom) is pounding right now.
+    - I've been feeling [dizzy](symptom) and [fatigued](symptom).
+    - I have a persistent [cough](symptom).
+    - My [stomach](symptom) hurts badly.
+    - I noticed a [rash](symptom) on my arm.
+    - I'm experiencing [joint pain](symptom).
+    - What should I do for a [migraine](symptom)?
+
+- intent: medication_query
+  examples: |
+    - What is the best dosage for [ibuprofen](medication)?
+    - How often should I take {medication: Tylenol}?
+    - Are there side effects for {medication: Amoxicillin}?
+    - Can I take {medication: Aspirin} with a fever?
+    - Tell me more about [Lisinopril](medication).
+    - What does [Paracetamol](medication) do?
+    - I need information on [Advil](medication).
+    - Is [Zoloft](medication) a safe drug?
+
+- intent: check_appointment
+  examples: |
+    - Do you have any appointments available?
+    - Can I see a [doctor](doctor) [tomorrow](date)?
+    - I need to book a follow-up appointment.
+    - Schedule a visit for me [next week](date).
+    - Is [Dr. Smith](doctor) available on [Wednesday](date)?
+    - Book an appointment with a [pediatrician](doctor).
+    - I need an appointment for [September 30th](date).
+    - Find an opening with a [specialist](doctor).
+  
+- intent: medication_query
+  examples: |
+    - What is the best dosage for [ibuprofen](medication)?
+    - How often should I take [Tylenol](medication)?
+    - Are there side effects for [Amoxicillin](medication)?
+    - Can I take [Aspirin](medication) with a fever?
+    - Tell me about [Lisinopril](medication).
+    - What does [Paracetamol](medication) do?
+    - I need information on [Advil](medication).
+    - Is [Zoloft](medication) safe?
+    - dosage for [Advil](medication)
+    - information about [Tylenol](medication)
+    - what is the safe dose of [ibuprofen](medication)?
+    - how much [Aspirin](medication) should I take?
+    - how should I use [Zyrtec](medication)?

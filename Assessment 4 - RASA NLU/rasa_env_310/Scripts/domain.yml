@@ -1,0 +1,74 @@
+version: "3.1"
+
+# domain.yml
+# ...
+    
+# ...
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - symptom_report
+  - medication_query
+  - check_appointment
+
+entities:
+  - medication
+  - symptom    # New entity for illness descriptions
+  - doctor     # New entity for professional names/types
+  - date       # New entity for timing/scheduling
+
+slots:
+  risk_level:
+    type: text
+    # The influence_conversation parameter is optional, but useful.
+    influence_conversation: false 
+    # MAPPINGS SECTION IS REQUIRED
+    mappings:
+    - type: custom  # This tells Rasa the slot is filled by a custom action
+      # For slots filled only by custom actions, 'custom' is a standard type.
+  medication:  # Ensure this slot exists and has mappings
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: from_entity
+      entity: medication
+
+responses:
+  utter_greet:
+  - text: "Hey! How are you?"
+
+  utter_cheer_up:
+  - text: "Here is something to cheer you up:"
+    image: "https://i.imgur.com/nGF1K8f.jpg"
+
+  utter_did_that_help:
+  - text: "Did that help you?"
+
+  utter_happy:
+  - text: "Great, carry on!"
+
+  utter_goodbye:
+  - text: "Bye"
+
+  utter_iamabot:
+  - text: "I am a bot, powered by Rasa."
+
+  utter_ask_severity:
+    - text: "I understand you're feeling unwell. Could you describe the severity of your symptoms (mild, moderate, or severe)?"
+
+  utter_suggest_action:
+    - text: "Thank you for the details. Based on what you've described, I recommend you contact a primary care physician immediately."
+
+  utter_ask_booking:
+    - text: "I can check for you. Do you need an appointment for today or tomorrow?"
+# (Keep all existing responses, e.g., utter_greet)
+
+actions:
+- action_symptom_checker # New action must be listed here
+- action_hello_world     # (The default sample action)
+- action_medication_query # New action listed here
