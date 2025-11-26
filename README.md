@@ -359,6 +359,8 @@ ECommerceChatbot/
 
 ## 📢 Project Presentation
 
+![Watch Presentation](public/presentation-preview.gif)
+
 Explore the architecture, design philosophy, and future roadmap of the NLU ML Chatbot Maker in our official presentation.
 
 [**📄 View Project Presentation (PDF)**](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker/blob/master/Thota%20Sravya%20Vardhani%20-%20Infosys%20NLU%20Chatbot.pdf)
@@ -473,3 +475,4 @@ For support, email thotasravyavardhani@gmail.com or open an issue in this reposi
 -----
 
 **⭐ If you find this project useful, please consider giving it a star\!**
+
