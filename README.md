@@ -1,9 +1,14 @@
 # INFOSYS VIRTUAL INTERNSHIP - 6.0
 
-## [MAIN Branch - ASSIGNMENTS](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker)
+## [MAIN Branch - ASSIGNMENTS](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker) - CURRENT (DEFAULT)
+
+
 ## [MASTER Branch - FINAL PROJECT](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker/tree/master)
+   ### for 🤖 NLU ML Chatbot Platform, REACH OUT 👆 
+   
+   ![Watch Presentation](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker/blob/master/Thota%20Sravya%20Vardhani%20-%20Infosys%20NLU%20Chatbot.gif)
 
-
+   
 # 🎓 Infosys Virtual Internship - NLU & ML Track (Assignments)
 
 This repository contains the complete submission of assessments and milestones for the **Infosys Springboard Virtual Internship 6.0**. The project focuses on Natural Language Understanding (NLU), Machine Learning (ML), and Chatbot development using various frameworks.
