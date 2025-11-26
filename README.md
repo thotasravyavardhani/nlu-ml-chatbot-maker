@@ -1,1 +1,3 @@
-# nlu-ml-chatbot-maker
+# INFOSYS VIRTUAL INTERNSHIP - 6.0
+## MAIN - ASSIGNMENTS
+## MASTER - FINAL PROJECT
