@@ -1,0 +1,31 @@
+Demonstration Prompts
+To run a perfect demo, you need three terminal windows open (Action Server, Rasa Server, Shell Client).
+
+🚀 Setup Commands
+Terminal	Command	Purpose
+Window 1	rasa run actions	Runs the Python code above (Port 5055).
+Window 2	rasa train	Ensure you run this once to load the latest NLU/Domain/Stories.
+Window 3	rasa shell --endpoints endpoints.yml	Starts the main bot and connects to the Action Server.
+💬 Error-Free Demonstration Flow
+Use the following inputs in Terminal 3 (the shell) to show the bot's capability across both custom actions:
+
+A. High-Risk Triage (Custom Action)
+Prompt: Hello, I'm having severe chest pain right now.
+
+Expected Action: Triggers action_symptom_checker
+
+Expected Output: 🚨 **Immediate Attention Required!** Based on your report of chest pain, please seek emergency medical attention or call emergency services right away.
+
+B. Moderate-Risk Triage (Custom Action)
+Prompt: I woke up with a bad headache and fever.
+
+Expected Action: Triggers action_symptom_checker
+
+Expected Output: 🤒 Your symptoms (headache and fever) suggest a common ailment. I recommend resting and monitoring your temperature. Consult a doctor if symptoms worsen.
+
+C. Safe Medication Query (Custom Action - Fix Confirmed)
+Prompt: What is the best dosage for ibuprofen?
+
+Expected Action: Triggers action_medication_query
+
+Expected Output: I can provide general information about **ibuprofen**, but please consult a professional for personalized dosage advice.
