@@ -1,0 +1,164 @@
+{
+  "entities": {
+    "room_entity": {
+      "automatically_extensible": false,
+      "data": [
+        {
+          "synonyms": [
+            "lounge",
+            "den"
+          ],
+          "value": "living_room"
+        },
+        {
+          "synonyms": [
+            "kitch"
+          ],
+          "value": "kitchen"
+        },
+        {
+          "synonyms": [],
+          "value": "bedroom"
+        }
+      ],
+      "matching_strictness": 1.0,
+      "use_synonyms": true
+    }
+  },
+  "intents": {
+    "greet": {
+      "utterances": [
+        {
+          "data": [
+            {
+              "text": "hello"
+            }
+          ]
+        },
+        {
+          "data": [
+            {
+              "text": "hi there"
+            }
+          ]
+        },
+        {
+          "data": [
+            {
+              "text": "hey bot"
+            }
+          ]
+        },
+        {
+          "data": [
+            {
+              "text": "good day"
+            }
+          ]
+        }
+      ]
+    },
+    "turnLightOff": {
+      "utterances": [
+        {
+          "data": [
+            {
+              "text": "Turn the "
+            },
+            {
+              "entity": "room_entity",
+              "slot_name": "room",
+              "text": "kitchen"
+            },
+            {
+              "text": " lights off"
+            }
+          ]
+        },
+        {
+          "data": [
+            {
+              "text": "dim the lights in the "
+            },
+            {
+              "entity": "room_entity",
+              "slot_name": "room",
+              "text": "living_room"
+            }
+          ]
+        },
+        {
+          "data": [
+            {
+              "text": "switch off the "
+            },
+            {
+              "entity": "room_entity",
+              "slot_name": "room",
+              "text": "bedroom"
+            },
+            {
+              "text": " light"
+            }
+          ]
+        }
+      ]
+    },
+    "turnLightOn": {
+      "utterances": [
+        {
+          "data": [
+            {
+              "text": "Turn on the light in the "
+            },
+            {
+              "entity": "room_entity",
+              "slot_name": "room",
+              "text": "living_room"
+            }
+          ]
+        },
+        {
+          "data": [
+            {
+              "text": "switch the "
+            },
+            {
+              "entity": "room_entity",
+              "slot_name": "room",
+              "text": "kitchen"
+            },
+            {
+              "text": "'s lights on"
+            }
+          ]
+        },
+        {
+          "data": [
+            {
+              "text": "Can you light up the "
+            },
+            {
+              "entity": "room_entity",
+              "slot_name": "room",
+              "text": "bedroom"
+            }
+          ]
+        },
+        {
+          "data": [
+            {
+              "text": "Light the "
+            },
+            {
+              "entity": "room_entity",
+              "slot_name": "room",
+              "text": "lounge"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "language": "en"
+}

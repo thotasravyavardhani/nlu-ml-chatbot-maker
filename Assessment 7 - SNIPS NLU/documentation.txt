@@ -1,0 +1,32 @@
+1. Run the Command Prompt as Administrator
+The most common fix for symbolic link creation failures on Windows is to run the terminal with elevated permissions.
+
+Deactivate your virtual environment:
+
+Bash
+
+(snips_env) E:\Infosys Internship - NLU Chatbot\Assessment 6 - SNIPS NLU\Snips NLU Chatbot>deactivate
+Close your current Command Prompt window.
+
+Open a new Commancd Ed Prompt by searching for "cmd," right-clicking on it, and selecting "Run as administrator."
+
+Navigate back to your project directory.
+
+Bash
+
+C:\WINDOWS\system32>E:
+E:\>cd Infosys Internship - NLU Chatbot\Assessment 7 - SNIPS NLU\Snips NLU Chatbot
+Activate your virtual environment again:
+
+Bash
+
+E:\Infosys Internship - NLU Chatbot\Assessment 7 - SNIPS NLU\Snips NLU Chatbot>.\snips_env\Scripts\activate
+Re-run the language resource download command:
+
+Bash
+
+(snips_env) E:\Infosys Internship - NLU Chatbot\Assessment 7 - SNIPS NLU\Snips NLU Chatbot>python -m snips_nlu download en
+This should now successfully create the necessary symbolic link.
+
+
+(snips_env) (snips_env) E:\Infosys Internship - NLU Chatbot\Assessment 7 - SNIPS NLU\Snips NLU Chatbot>python test_nlu.py>python chatbot_app.py

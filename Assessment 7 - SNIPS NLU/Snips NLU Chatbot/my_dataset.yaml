@@ -1,0 +1,46 @@
+# E:\Snips NLU Chatbot\my_dataset.yaml
+
+# Intent: turnLightOn
+---
+type: intent
+name: turnLightOn
+slots:
+  - name: room
+    entity: room_entity
+utterances:
+  - Turn on the light in the [room](living_room)
+  - switch the [room](kitchen)'s lights on
+  - Can you light up the [room](bedroom)
+  - Light the [room](lounge)
+
+# Intent: turnLightOff
+---
+type: intent
+name: turnLightOff
+slots:
+  - name: room
+    entity: room_entity
+utterances:
+  - Turn the [room](kitchen) lights off
+  - dim the lights in the [room](living_room)
+  - switch off the [room](bedroom) light
+
+# Intent: greet (No slots needed)
+---
+type: intent
+name: greet
+utterances:
+  - hello
+  - hi there
+  - hey bot
+  - good day
+
+# Custom Entity: room_entity
+---
+type: entity
+name: room_entity
+automatically_extensible: false
+values:
+  - [living_room, lounge, den]
+  - [kitchen, kitch]
+  - bedroom
