@@ -1,5 +1,3 @@
-### **MASTER Branch - FINAL PROJECT**
-
 # 🤖 NLU ML Chatbot Platform
 
 > **Status:** ✅ Integration Complete | 🐍 Python Backend Active | 🧠 RASA NLU Connected
@@ -363,7 +361,7 @@ ECommerceChatbot/
 
 Explore the architecture, design philosophy, and future roadmap of the NLU ML Chatbot Maker in our official presentation.
 
-[**📄 View Project Presentation (PDF)**](https://www.google.com/search?q=Thota%2520Sravya%2520Vardhani%2520-%2520Infosys%2520NLU%2520Chatbot.pdf)
+[**📄 View Project Presentation (PDF)**](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker/blob/master/Thota%20Sravya%20Vardhani%20-%20Infosys%20NLU%20Chatbot.pdf)
 
 **Highlights:**
 
