@@ -1,7 +1,7 @@
 # INFOSYS VIRTUAL INTERNSHIP - 6.0
 
-## MAIN Branch - ASSIGNMENTS
-## MASTER Branch - FINAL PROJECT
+## [MAIN Branch - ASSIGNMENTS](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker)
+## [MASTER Branch - FINAL PROJECT](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker/tree/master)
 
 
 # 🎓 Infosys Virtual Internship - NLU & ML Track (Assignments)
