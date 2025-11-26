@@ -4,9 +4,20 @@
 
 A comprehensive platform for building, training, and deploying intelligent **Natural Language Understanding (NLU)** chatbots powered by advanced **Machine Learning** algorithms and **RASA** framework.
 
-![Platform Banner](https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/586a0e30-c7a5-438f-8c09-f250c2d77bab/generated_images/modern-professional-nlu-ml-platform-dash-3441cf8f-20251110175143.jpg)
+![Watch Presentation](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker/blob/master/Thota%20Sravya%20Vardhani%20-%20Infosys%20NLU%20Chatbot.gif)
 
----
+Explore the architecture, design philosophy, and future roadmap of the NLU ML Chatbot Maker in our official presentation.
+
+[**📄 View Project Presentation (PDF)**](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker/blob/master/Thota%20Sravya%20Vardhani%20-%20Infosys%20NLU%20Chatbot.pdf)
+
+**Highlights:**
+
+  * **Dual-Service Design:** Deep dive into how our ML Workbench and NLU Builder work in tandem.
+  * **Challenges Solved:** How we address data scarcity and model explainability.
+  * **Future Roadmap:** Plans for Generative AI integration and multi-language support.
+
+-----
+
 
 ## 🌟 Features
 
@@ -355,24 +366,6 @@ ECommerceChatbot/
   - `POST /api/python/rasa/predict` - NLU prediction
   - `POST /api/python/rasa/chat` - Chat with bot
 
------
-
-## 📢 Project Presentation
-
-![Watch Presentation](public/presentation-preview.gif)
-
-Explore the architecture, design philosophy, and future roadmap of the NLU ML Chatbot Maker in our official presentation.
-
-[**📄 View Project Presentation (PDF)**](https://github.com/thotasravyavardhani/nlu-ml-chatbot-maker/blob/master/Thota%20Sravya%20Vardhani%20-%20Infosys%20NLU%20Chatbot.pdf)
-
-**Highlights:**
-
-  * **Dual-Service Design:** Deep dive into how our ML Workbench and NLU Builder work in tandem.
-  * **Challenges Solved:** How we address data scarcity and model explainability.
-  * **Future Roadmap:** Plans for Generative AI integration and multi-language support.
-
------
-
 ## 🧪 Sample Datasets
 
 Sample datasets are available in `/public/sample-datasets/` for testing:
@@ -475,4 +468,5 @@ For support, email thotasravyavardhani@gmail.com or open an issue in this reposi
 -----
 
 **⭐ If you find this project useful, please consider giving it a star\!**
+
 
