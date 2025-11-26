@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-# nlu-ml-platform
-=======
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-=======
 # 🤖 NLU ML Chatbot Platform
 >>>>>>> 363640e (Complete NLU ML Platform with all features)
 
@@ -416,3 +410,4 @@ For support, email your-email@example.com or open an issue in this repository.
 
 **⭐ If you find this project useful, please consider giving it a star!**
 >>>>>>> 363640e (Complete NLU ML Platform with all features)
+
