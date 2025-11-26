@@ -1,0 +1,25 @@
+Local connector is used instead of s3 connector 
+
+API Key Creation & Data Ingestion Steps
+
+1. Key Creation Steps (How you got the key)
+You did this already, but here's the path to generating the key again:
+
+https://unstructured.io/#get-api-key
+
+Sign In: Log in to the Unstructured Console.
+
+Navigate: Go to the "API Keys" section under "My Account."
+
+Generate: Click "Generate New Key," give it a simple name (like "Medical Bot"), and save it immediately.
+
+Copy: Copy the full string (this is your YOUR_API_KEY).
+
+2. Final Data Processing Procedure (What to Run)
+This is the confirmed, working, bug-free method. Use the placeholder YOUR_API_KEY below, but substitute it with your actual key when you run the command.
+
+Step Action Command to Run
+Set API Key Set the key as an environment variable (YOUR_API_KEY). set UNSTRUCTURED_API_KEY=YOUR_API_KEY
+Run Ingest Execute the main command to process files and chunk the output. unstructured-ingest local --input-path "E:\Infosys Internship - NLU Chatbot\Assessment 2 - Unstructured API\Medical_Chatbot_Input" --work-dir "E:\Infosys Internship - NLU Chatbot\Assessment 2 - Unstructured API\Medical_Chatbot_Output" --partition-by-api --recursive --num-processes 8 --tqdm --verbose --chunking-strategy by_title --chunk-max-characters 1000 --chunk-new-after-n-chars 800 --chunk-overlap 100
+
+Goal Achieved: Your raw documents are now clean, structured JSONs in the output folder, ready for your NLU model.

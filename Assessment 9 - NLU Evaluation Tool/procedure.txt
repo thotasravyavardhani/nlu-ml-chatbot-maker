@@ -1,0 +1,46 @@
+To run the NLU evaluation, you need to execute the Python script evaluate_nlu.py.
+
+This process involves two main steps: Setup (installing required libraries) and Execution (running the script from your terminal).
+
+1. Setup: Installing Dependencies
+Your evaluation script uses specialized NLU and metrics libraries. Before running, ensure you have the necessary packages installed in your Python environment.
+
+Open your terminal or command prompt and run the following command:
+
+Bash
+
+pip install snips-nlu scikit-learn seqeval
+Library	Purpose
+snips-nlu	Required to load and train your NLU engine using dataset.json.
+scikit-learn	Required for calculating Intent metrics (accuracy_score, classification_report, confusion_matrix).
+seqeval	Required (conceptually) for calculating Entity/Slot sequence-level F1 scores.
+
+Export to Sheets
+2. Execution: Running the Script
+Make sure you have all three required files—dataset.json, test_data.json, and evaluate_nlu.py—in the same directory.
+
+In your terminal, execute the script directly using Python:
+
+Bash
+
+python evaluate_nlu.py
+What the Script Does:
+Training: The script first calls the train_engine() function, which loads your dataset.json and trains the SnipsNLUEngine.
+
+Evaluation: It then calls evaluate_nlu_model(), which does the following for every utterance in test_data.json:
+
+Feeds the utterance into the trained model (engine.parse(utterance)).
+
+Collects the model's predictions (y_pred_intent, y_pred_slots).
+
+Collects the expected results (y_true_intent, y_true_slots) from test_data.json.
+
+Reporting: Finally, it uses the collected lists to print the detailed evaluation reports:
+
+Full Match Accuracy (Intent + all Slots correct).
+
+Intent Accuracy and Classification Report (Precision, Recall, F1-score per intent).
+
+Confusion Matrix (visualizing misclassified intents).
+
+The output will be printed directly to your terminal, providing the metrics and analysis you need.

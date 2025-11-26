@@ -1,0 +1,13 @@
+https://dialogflow.cloud.google.com/#/agent/online-shopping-glyt/integrations
+
+python -m http.server 8000
+
+http://localhost:8000/E-ShopBot.html
+
+<script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+<df-messenger
+  intent="WELCOME"
+  chat-title="Online-Shopping"
+  agent-id="c488af8e-84c6-4c0a-b3bf-6f83673e7e9e"
+  language-code="en"
+></df-messenger>

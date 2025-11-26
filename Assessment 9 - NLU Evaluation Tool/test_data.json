@@ -1,0 +1,62 @@
+[
+  {
+    "utterance": "Please turn off the lights in the den",
+    "intent": "turnLightOff",
+    "slots": [
+      {
+        "slotName": "room",
+        "value": "living_room"
+      }
+    ]
+  },
+  {
+    "utterance": "hi",
+    "intent": "greet",
+    "slots": []
+  },
+  {
+    "utterance": "switch the kitchen lights on",
+    "intent": "turnLightOn",
+    "slots": [
+      {
+        "slotName": "room",
+        "value": "kitchen"
+      }
+    ]
+  },
+  {
+    "utterance": "turn off the light",
+    "intent": "turnLightOff",
+    "slots": []
+  },
+  {
+    "utterance": "what's the forecast in my location",
+    "intent": "getWeather",
+    "slots": [
+      {
+        "slotName": "city",
+        "value": "london"
+      }
+    ]
+  },
+  {
+    "utterance": "lights on",
+    "intent": "turnLightOn",
+    "slots": []
+  },
+  {
+    "utterance": "What's the weather like?",
+    "intent": "getWeather",
+    "slots": []
+  },
+  {
+    "utterance": "Can you shut down the lights in the garage area",
+    "intent": "turnLightOff",
+    "slots": [
+      {
+        "slotName": "room",
+        "value": "garage"
+      }
+    ]
+  }
+]

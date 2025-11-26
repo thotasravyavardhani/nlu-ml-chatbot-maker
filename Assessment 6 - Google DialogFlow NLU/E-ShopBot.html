@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce AI Assistant Portal</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s;
+        }
+        /* Custom colors for E-commerce vibe */
+        .nav-bg {
+            background-color: #232F3E; /* Dark Blue - Primary Nav */
+        }
+        .accent-color {
+            color: #FF9900; /* Amazon/Flipkart Orange/Yellow */
+        }
+        .accent-bg {
+             background-color: #FF9900;
+        }
+
+        /* Style the Dialogflow messenger button/UI for aesthetics */
+        df-messenger {
+            --df-messenger-min-width: 100%;
+            --df-messenger-min-height: 100%;
+            --df-messenger-title-background-color: #232F3E; /* Dark Blue */
+            --df-messenger-button-titlebar-color: white;
+            --df-messenger-button-size: 64px;
+            --df-messenger-font-family: 'Inter', sans-serif;
+        }
+
+        /* Ensure the chatbot is fixed at the bottom right, common for messengers */
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- 1. Mock E-Commerce Navigation Bar -->
+    <header class="nav-bg shadow-lg sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="text-3xl font-extrabold text-white">
+                <span class="accent-color mr-1">E-Shop</span>Bot
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm text-white">
+                <a href="#" class="hover:text-gray-300">Categories</a>
+                <a href="#" class="hover:text-gray-300">Deals</a>
+                <a href="#" class="hover:text-gray-300">My Orders</a>
+                <a href="#" class="accent-color font-semibold hover:text-yellow-400">Customer Service</a>
+            </nav>
+            <div class="text-white text-sm">
+                <span class="p-2 border border-gray-600 rounded-full cursor-pointer hover:bg-gray-700">👤 Account</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Main Content Area -->
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: The Main Widget Area -->
+            <div class="lg:col-span-2 bg-white p-10 shadow-xl rounded-xl border border-gray-200">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 flex items-center">
+                    <span class="accent-color mr-3">|</span> Instant Help Center
+                </h2>
+                <p class="text-gray-600 mb-8 leading-relaxed">
+                    Welcome to **E-ShopBot Support**. Our virtual agent is integrated into this page and is ready to handle your shopping journey. Use the chat icon in the corner for instant help with adding items to your cart, checking out, and order status!
+                </p>
+
+                <!-- Status/Guide Box -->
+                <div class="space-y-3 border-l-4 border-yellow-500 pl-6 py-4 bg-yellow-50 rounded-lg">
+                    <p class="font-bold text-xl text-yellow-800">Your Bot is LIVE!</p>
+                    <ul class="list-disc list-outside text-gray-700 space-y-2 ml-6">
+                        <li class="flex items-start">
+                            <span class="h-6 w-6 accent-color mr-2 flex-shrink-0">🚀</span>
+                            <span class="flex-grow">
+                                **Agent ID** is confirmed and connected: **c488af8e-84c6-4c0a-b3bf-6f83673e7e9e**
+                            </span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="h-6 w-6 accent-color mr-2 flex-shrink-0">💡</span>
+                            <span class="flex-grow">
+                                **Try these phrases:** "I love this laptop add it to my cart," "check my cart," or "check me out please."
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Right Column: Simulated Product Card (Simulating a main e-commerce feature) -->
+            <div class="lg:col-span-1 bg-white p-6 shadow-xl rounded-xl border border-gray-200 flex flex-col">
+                 <h3 class="text-2xl font-semibold text-gray-800 mb-4">Featured Item</h3>
+                 <!-- UPDATED IMAGE URL FOR REALISM -->
+                 <img src="https://placehold.co/400x250/2563EB/ffffff?text=Modern+Business+Laptop" 
+                     alt="Modern Business Laptop" class="w-full h-auto rounded-lg mb-4 shadow-md"/>
+                 <p class="text-lg font-bold text-gray-900 mb-1">Ultra-Fast X1 Laptop</p>
+                 <p class="text-sm text-gray-500 mb-4">16GB RAM, 1TB SSD, 14" OLED Display.</p>
+                 <p class="text-3xl font-extrabold accent-color mb-4">$899.99</p>
+                 <button class="w-full accent-bg text-white font-bold py-3 px-4 rounded-lg hover:bg-yellow-600 transition duration-150">
+                    Buy Now
+                 </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Dialogflow Messenger Integration (Fixed Widget) -->
+    <div class="chat-container">
+        <!-- AGENT ID HAS BEEN PASTED HERE -->
+        <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+        <df-messenger
+            intent="WELCOME"
+            chat-title="Online_Shopping_Bot"
+            agent-id="c488af8e-84c6-4c0a-b3bf-6f83673e7e9e"
+            language-code="en"
+            expand="true"
+        ></df-messenger>
+    </div>
+
+</body>
+</html>
