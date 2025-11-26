@@ -459,4 +459,3 @@ For support, email thotasravyavardhani@gmail.com or open an issue in this reposi
 
 **⭐ If you find this project useful, please consider giving it a star\!**
 
-````
