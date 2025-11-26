@@ -1,3 +1,5 @@
+### **MASTER Branch - FINAL PROJECT**
+
 # 🤖 NLU ML Chatbot Platform
 
 > **Status:** ✅ Integration Complete | 🐍 Python Backend Active | 🧠 RASA NLU Connected
@@ -294,6 +296,7 @@ ECommerceChatbot/
 ├── python-backend/            # Python Flask server
 │   ├── services/             # ML & RASA logic (dataset_service, ml_service, etc.)
 │   ├── models/               # Trained model storage (.pkl files)
+│   ├── datasets/             # Dataset storage
 │   ├── rasa_service.py       # RASA Service Entry Point (Port 8001)
 │   ├── ml_service.py         # ML Service Entry Point (Port 8000)
 │   ├── app.py                # Main App Entry (Port 5000)
@@ -353,6 +356,20 @@ ECommerceChatbot/
   - `POST /api/python/rasa/train` - Train RASA model
   - `POST /api/python/rasa/predict` - NLU prediction
   - `POST /api/python/rasa/chat` - Chat with bot
+
+-----
+
+## 📢 Project Presentation
+
+Explore the architecture, design philosophy, and future roadmap of the NLU ML Chatbot Maker in our official presentation.
+
+[**📄 View Project Presentation (PDF)**](https://www.google.com/search?q=Thota%2520Sravya%2520Vardhani%2520-%2520Infosys%2520NLU%2520Chatbot.pdf)
+
+**Highlights:**
+
+  * **Dual-Service Design:** Deep dive into how our ML Workbench and NLU Builder work in tandem.
+  * **Challenges Solved:** How we address data scarcity and model explainability.
+  * **Future Roadmap:** Plans for Generative AI integration and multi-language support.
 
 -----
 
@@ -458,4 +475,3 @@ For support, email thotasravyavardhani@gmail.com or open an issue in this reposi
 -----
 
 **⭐ If you find this project useful, please consider giving it a star\!**
-
