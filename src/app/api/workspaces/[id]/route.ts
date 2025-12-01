@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { workspaces } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { 
+  workspaces, 
+  datasets, 
+  mlModels, 
+  nluModels, 
+  chatSessions, 
+  chatMessages,
+  trainingHistory,
+  annotations 
+} from '@/db/schema';
+import { eq, and, inArray } from 'drizzle-orm';
 import { validateSessionFromCookies } from '@/lib/auth-helpers';
 
 export async function GET(
@@ -158,59 +167,71 @@ export async function DELETE(
   try {
     const user = await validateSessionFromCookies(request);
     if (!user) {
-      return NextResponse.json(
-        { error: 'Authentication required', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
+    const workspaceId = parseInt(id);
 
-    if (!id || isNaN(parseInt(id))) {
-      return NextResponse.json(
-        { error: 'Valid workspace ID is required', code: 'INVALID_ID' },
-        { status: 400 }
-      );
+    if (!id || isNaN(workspaceId)) {
+      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
-    const existingWorkspace = await db.select()
+    // 1. Verify Workspace Ownership
+    const existing = await db.select()
       .from(workspaces)
-      .where(
-        and(
-          eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, user.userId)
-        )
-      )
+      .where(and(eq(workspaces.id, workspaceId), eq(workspaces.userId, user.userId)))
       .limit(1);
 
-    if (existingWorkspace.length === 0) {
-      return NextResponse.json(
-        { error: 'Workspace not found', code: 'NOT_FOUND' },
-        { status: 404 }
-      );
+    if (existing.length === 0) {
+      return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
     }
 
+    // 2. CASCADE DELETE MANUALLY (Order is critical)
+    
+    // A. Delete Chat Messages (linked to Chat Sessions)
+    const sessions = await db.select({ id: chatSessions.id })
+      .from(chatSessions)
+      .where(eq(chatSessions.workspaceId, workspaceId));
+    
+    if (sessions.length > 0) {
+      const sessionIds = sessions.map(s => s.id);
+      await db.delete(chatMessages).where(inArray(chatMessages.chatSessionId, sessionIds));
+    }
+    await db.delete(chatSessions).where(eq(chatSessions.workspaceId, workspaceId));
+
+    // B. Delete Annotations (linked to NLU Models)
+    const nluModelList = await db.select({ id: nluModels.id })
+      .from(nluModels)
+      .where(eq(nluModels.workspaceId, workspaceId));
+      
+    if (nluModelList.length > 0) {
+      const nluIds = nluModelList.map(m => m.id);
+      await db.delete(annotations).where(inArray(annotations.nluModelId, nluIds));
+    }
+    await db.delete(nluModels).where(eq(nluModels.workspaceId, workspaceId));
+
+    // C. Delete Training History (linked to ML Models)
+    const mlModelList = await db.select({ id: mlModels.id })
+      .from(mlModels)
+      .where(eq(mlModels.workspaceId, workspaceId));
+      
+    if (mlModelList.length > 0) {
+      const mlIds = mlModelList.map(m => m.id);
+      await db.delete(trainingHistory).where(inArray(trainingHistory.mlModelId, mlIds));
+    }
+    await db.delete(mlModels).where(eq(mlModels.workspaceId, workspaceId));
+
+    // D. Delete Datasets
+    await db.delete(datasets).where(eq(datasets.workspaceId, workspaceId));
+
+    // E. Finally, Delete the Workspace
     const deleted = await db.delete(workspaces)
-      .where(
-        and(
-          eq(workspaces.id, parseInt(id)),
-          eq(workspaces.userId, user.userId)
-        )
-      )
+      .where(eq(workspaces.id, workspaceId))
       .returning();
 
-    if (deleted.length === 0) {
-      return NextResponse.json(
-        { error: 'Workspace not found', code: 'NOT_FOUND' },
-        { status: 404 }
-      );
-    }
-
     return NextResponse.json(
-      {
-        message: 'Workspace deleted successfully',
-        workspace: deleted[0]
-      },
+      { message: 'Workspace deleted successfully', workspace: deleted[0] },
       { status: 200 }
     );
   } catch (error) {
